@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Bebras MX</title>
+    <title>Panel de Administración - Nestbytes Olimpo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 pb-20">
@@ -13,7 +13,7 @@
         <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Panel de Administración</h1>
-                <p class="text-sm text-gray-600">Bebras MX - Primavera 2025</p>
+                <p class="text-sm text-gray-600">Nestbytes Olimpo - Primavera 2025</p>
             </div>
             <div class="flex items-center gap-4">
                 <a href="{{ route('preguntas.index') }}" class="text-blue-600 hover:text-blue-800">

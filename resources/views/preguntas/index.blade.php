@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca de Preguntas - Bebras MX</title>
+    <title>Biblioteca de Preguntas - Nestbytes Olimpo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen flex flex-col relative">
@@ -23,7 +23,7 @@
         <div class="max-w-7xl mx-auto px-4 py-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Bebras MX - Primavera 2025</h1>
+                    <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Nestbytes Olimpo - Primavera 2025</h1>
                     <p class="text-neutral-600 dark:text-neutral-400 mt-2">Biblioteca de Preguntas de Pensamiento Computacional</p>
                 </div>
                 <div class="flex items-center gap-4">

@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Bebras MX</title>
+        <title>Nestbytes Olimpo</title>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -131,7 +131,7 @@
                     
                     <div class="relative z-10">
                         <h1 class="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            ¡Bienvenido a Bebras MX! 👋
+                            ¡Bienvenido a Nestbytes Olimpo! 👋
                         </h1>
                         <p class="mb-8 text-lg lg:text-xl text-neutral-700 dark:text-neutral-300 font-medium leading-relaxed">
                             Desarrolla tu pensamiento computacional resolviendo problemas divertidos y desafiantes. 

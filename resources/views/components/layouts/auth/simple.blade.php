@@ -42,7 +42,7 @@
                         </div>
                     </a>
                     <h1 class="text-5xl font-bold mb-2 drop-shadow-2xl" style="background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFE66D, #FF6B9D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                        {{ config('app.name', 'Bebras MX') }}
+                        {{ config('app.name', 'Nestbytes Olimpo') }}
                     </h1>
                     <p class="text-white text-lg font-semibold drop-shadow-lg">¡Hola! 👋 ¡Vamos a aprender juntos!</p>
                 </div>
@@ -58,7 +58,7 @@
                 <!-- Footer divertido -->
                 <div class="text-center mt-8 animate-fade-in">
                     <p class="text-white text-sm font-semibold drop-shadow-lg">
-                        🎉 © {{ date('Y') }} {{ config('app.name', 'Bebras MX') }} 🎉
+                        🎉 © {{ date('Y') }} {{ config('app.name', 'Nestbytes Olimpo') }} 🎉
                     </p>
                 </div>
             </div>

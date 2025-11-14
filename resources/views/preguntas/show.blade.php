@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $pregunta->titulo }} - Bebras MX</title>
+    <title>{{ $pregunta->titulo }} - Nestbytes Olimpo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     @if($pregunta->tipo_interaccion === 'ordenar')
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
