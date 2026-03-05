@@ -11,7 +11,7 @@
                         <x-app-logo-icon class="size-9 fill-current text-black dark:text-white" />
                     </span>
 
-                    <span class="sr-only">{{ config('app.name', 'Nestbytes Olimpo') }}</span>
+                    <span class="sr-only">{{ config('app.name', 'Bebras Lab') }}</span>
                 </a>
 
                 <div class="flex flex-col gap-6">

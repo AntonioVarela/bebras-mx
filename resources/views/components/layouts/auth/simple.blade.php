@@ -3,9 +3,9 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen antialiased overflow-hidden">
-        <!-- Fondo colorido y divertido para niños -->
-        <div class="fixed inset-0 bg-gradient-to-br from-yellow-400 via-orange-400 via-pink-400 to-purple-500">
+    <body class="min-h-screen antialiased overflow-x-hidden overflow-y-auto">
+        <!-- Fondo colorido (light) / más oscuro en dark -->
+        <div class="fixed inset-0 bg-gradient-to-br from-yellow-400 via-orange-400 via-pink-400 to-purple-500 dark:from-zinc-900 dark:via-purple-950 dark:via-zinc-900 dark:to-zinc-900">
             <!-- Estrellas decorativas animadas -->
             <div class="absolute inset-0 overflow-hidden">
                 <div class="star star-1">⭐</div>
@@ -36,29 +36,29 @@
                     <a href="{{ route('home') }}" class="inline-flex items-center justify-center mb-6" wire:navigate>
                         <div class="relative">
                             <div class="absolute inset-0 bg-white rounded-full blur-xl opacity-70 animate-bounce" style="animation-duration: 2s;"></div>
-                            <div class="relative bg-white/90 backdrop-blur-md rounded-3xl p-6 border-4 border-yellow-300 shadow-2xl transform hover:scale-110 hover:rotate-3 transition-all duration-300">
-                                <x-app-logo-icon class="size-16 fill-current text-purple-600" />
+                            <div class="relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-3xl p-2 border-4 border-yellow-300 dark:border-zinc-600 shadow-2xl transform hover:scale-110 hover:rotate-3 transition-all duration-300">
+                                <img
+                                    src="{{ asset('logo.png') }}"
+                                    alt="{{ config('app.name', 'Bebras Lab') }}"
+                                    class="h-20 w-20 object-contain mx-auto"
+                                >
                             </div>
                         </div>
                     </a>
-                    <h1 class="text-5xl font-bold mb-2 drop-shadow-2xl" style="background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFE66D, #FF6B9D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                        {{ config('app.name', 'Nestbytes Olimpo') }}
-                    </h1>
-                    <p class="text-white text-lg font-semibold drop-shadow-lg">¡Hola! 👋 ¡Vamos a aprender juntos!</p>
                 </div>
 
                 <!-- Card del formulario con estilo divertido -->
-                <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border-4 border-yellow-300 p-8 animate-slide-up relative overflow-hidden">
+                <div class="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border-4 border-yellow-300 dark:border-zinc-600 p-8 animate-slide-up relative overflow-hidden">
                     <!-- Decoración de esquina -->
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-yellow-300 rounded-bl-full opacity-30"></div>
-                    <div class="absolute bottom-0 left-0 w-16 h-16 bg-pink-300 rounded-tr-full opacity-30"></div>
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-yellow-300 dark:bg-yellow-600/40 rounded-bl-full opacity-30 dark:opacity-20"></div>
+                    <div class="absolute bottom-0 left-0 w-16 h-16 bg-pink-300 dark:bg-pink-600/40 rounded-tr-full opacity-30 dark:opacity-20"></div>
                     {{ $slot }}
                 </div>
 
                 <!-- Footer divertido -->
                 <div class="text-center mt-8 animate-fade-in">
-                    <p class="text-white text-sm font-semibold drop-shadow-lg">
-                        🎉 © {{ date('Y') }} {{ config('app.name', 'Nestbytes Olimpo') }} 🎉
+                    <p class="text-white dark:text-zinc-400 text-sm font-semibold drop-shadow-lg">
+                        🎉 © {{ date('Y') }} {{ config('app.name', 'Bebras Lab') }} 🎉
                     </p>
                 </div>
             </div>

@@ -1,11 +1,13 @@
 <x-layouts.auth>
     <div class="flex flex-col gap-6">
-        <!-- Título divertido para niños -->
-        <div class="text-center mb-4">
-            <h2 class="text-4xl font-bold mb-2" style="background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFE66D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                ¡Hola Amigo! 👋
+        <!-- Título de la tarjeta -->
+        <div class="text-center mb-2">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-2" style="background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFE66D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                Inicia sesión
             </h2>
-            <p class="text-base text-neutral-700 font-semibold">Vamos a empezar nuestra aventura 🚀</p>
+            <p class="text-base text-neutral-700 font-semibold">
+                Ingresa tus datos para empezar a practicar
+            </p>
         </div>
 
         <!-- Session Status -->
@@ -101,13 +103,13 @@
                 />
             </div>
 
-            <!-- Submit Button divertido -->
+            <!-- Botón de acceso -->
             <button
                 type="submit"
                 class="w-full bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group mt-4 text-lg border-4 border-white"
                 data-test="login-button"
             >
-                <span>¡Vamos a Jugar! 🎮</span>
+                <span>Entrar a Bebras Lab</span>
                 <span class="text-2xl group-hover:animate-bounce">🚀</span>
             </button>
         </form>

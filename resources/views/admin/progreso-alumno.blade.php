@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progreso de {{ $alumno->name }} - Nestbytes Olimpo</title>
+    <title>Progreso de {{ $alumno->name }} - Bebras Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 pb-20">
-    
+<body class="min-h-screen flex flex-col bg-gray-100">
+    <div class="flex-1 flex flex-col">
     {{-- Header --}}
     <div class="bg-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-4">
@@ -142,6 +142,7 @@
             </div>
         </div>
 
+    </div>
     </div>
     @include('layouts.footer')
 </body>
