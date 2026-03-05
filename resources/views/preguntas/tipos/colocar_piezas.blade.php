@@ -38,13 +38,7 @@
                                 <p class="text-xs font-semibold text-gray-800">Abeja {{ $abeja['id'] }}</p>
                             </div>
                         </div>
-                        @if(isset($abeja['regla']))
-                            <div class="mt-1 pt-1 border-t border-gray-200">
-                                <img src="{{ asset('storage/' . $abeja['regla']) }}" 
-                                     alt="Regla abeja {{ $abeja['id'] }}" 
-                                     class="w-full h-auto rounded max-h-16 object-contain">
-                            </div>
-                        @endif
+                       
                     </div>
                 @endforeach
             </div>
@@ -53,31 +47,52 @@
         {{-- Panal hexagonal --}}
         <div class="lg:col-span-2">
             <h4 class="text-sm font-semibold text-gray-700 mb-2">
-                Panal: 
+                Panal final
                 <span class="text-xs font-normal text-gray-500" id="contador-celdas">
-                    (0/{{ $celdasHexagonales }})
+                    (0/{{ $celdasHexagonales }} celdas ocupadas)
                 </span>
             </h4>
             
-            {{-- Grid de celdas del panal --}}
+            {{-- Grid de celdas del panal en forma de panal.
+                 - Si hay 7 celdas, se muestra un panal compacto de 7 hexágonos (2-3-2).
+                 - En otros casos, se usa un panal de 19 celdas (3-4-5-4-3). --}}
             <div class="bg-white border-2 border-gray-300 rounded-lg p-3">
-                {{-- Grid de celdas interactivas --}}
-                <div id="grid-hexagonal" class="grid grid-cols-5 gap-2 justify-center max-w-2xl mx-auto">
-                    @for($i = 1; $i <= $celdasHexagonales; $i++)
-                        <div class="celda-panal relative w-16 h-16 border-2 border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer flex flex-col items-center justify-center group"
-                             data-celda="{{ $i }}"
-                             data-ocupada="false">
-                            <span class="text-xs text-gray-400 font-medium">{{ $i }}</span>
-                            <div class="abeja-en-celda hidden absolute inset-0 flex items-center justify-center bg-yellow-50 rounded-lg border-2 border-yellow-300">
-                                <img src="" alt="" class="w-full h-full object-contain p-2">
-                                <button class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onclick="event.stopPropagation(); removerAbejaDeCeldaManual({{ $i }})"
-                                        title="Remover abeja">
-                                    ×
-                                </button>
-                            </div>
+                <div id="grid-hexagonal" class="flex flex-col items-center gap-2 max-w-xl mx-auto {{ $celdasHexagonales === 7 ? 'panal-7-rotado' : '' }}">
+                    @php
+                        // Distribución de celdas por fila para formar el panal
+                        if ($celdasHexagonales === 7) {
+                            // Panal compacto de 7 espacios (uno por abeja)
+                            $filasPanal = [2, 3, 2]; // 2-3-2 = 7
+                        } else {
+                            // Panal completo de 19 celdas
+                            $filasPanal = [3, 4, 5, 4, 3];
+                        }
+                        $indiceCentro = intdiv(count($filasPanal) - 1, 2);
+                        $celdaActual = 1;
+                    @endphp
+
+                    @foreach($filasPanal as $indiceFila => $cantidadCeldas)
+                        <div class="flex gap-2 justify-center"
+                             style="margin-left: {{ abs($indiceCentro - $indiceFila) * 18 }}px;">
+                            @for($j = 0; $j < $cantidadCeldas && $celdaActual <= $celdasHexagonales; $j++, $celdaActual++)
+                                <div class="celda-panal relative border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer flex items-center justify-center group"
+                                     data-celda="{{ $celdaActual }}"
+                                     data-ocupada="false">
+                                    <span class="text-xs text-gray-700 font-semibold bg-white/80 px-1 rounded-sm">
+                                        {{ $celdaActual }}
+                                    </span>
+                                    <div class="abeja-en-celda hidden absolute inset-0 flex items-center justify-center bg-yellow-50 border-2 border-yellow-300 overflow-hidden">
+                                        <img src="" alt="" class="w-full h-full object-contain p-2">
+                                        <button class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                onclick="event.stopPropagation(); removerAbejaDeCeldaManual({{ $celdaActual }})"
+                                                title="Remover abeja">
+                                            ×
+                                        </button>
+                                    </div>
+                                </div>
+                            @endfor
                         </div>
-                    @endfor
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -105,6 +120,19 @@
         position: relative;
     }
     
+    /* Forma hexagonal para las celdas del panal y las abejas dentro */
+    .celda-panal,
+    .celda-panal .abeja-en-celda {
+        width: 4rem;
+        height: 4rem;
+        clip-path: polygon(
+            25% 3%, 75% 3%,
+            97% 50%,
+            75% 97%, 25% 97%,
+            3% 50%
+        );
+    }
+    
     .celda-panal.ocupada {
         background-color: #fef3c7;
         border-color: #f59e0b;
@@ -119,6 +147,17 @@
     .celda-panal:hover:not(.ocupada) {
         background-color: #e0e7ff;
         border-color: #6366f1;
+    }
+
+    /* Rotar ligeramente el panal compacto de 7 celdas para asemejar la imagen de solución */
+    .panal-7-rotado {
+        transform: rotate(30deg);
+        transform-origin: center;
+    }
+
+    /* Mantener las abejas en posición "normal" al compensar la rotación del panal */
+    .panal-7-rotado .abeja-en-celda img {
+        transform: rotate(-30deg);
     }
 </style>
 

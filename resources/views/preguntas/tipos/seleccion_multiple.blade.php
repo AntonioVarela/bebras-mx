@@ -53,9 +53,9 @@
                     name="opciones[]" 
                     value="{{ $opcion['id'] }}"
                     class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 mr-2">
-                <span class="flex-1 text-sm">
+                <span class="flex-1 text-sm text-neutral-800 dark:text-neutral-100">
                     <span class="font-bold text-blue-600 mr-2">{{ $opcion['id'] }})</span>
-                    {{ $opcion['valor'] }}
+                    <span>{{ $opcion['valor'] }}</span>
                 </span>
             </label>
         @endforeach

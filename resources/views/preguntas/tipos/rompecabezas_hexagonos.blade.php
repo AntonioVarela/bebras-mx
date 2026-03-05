@@ -29,11 +29,18 @@
                     <div class="pieza-item bg-white border-2 border-gray-300 rounded-lg p-2 cursor-move hover:shadow-lg transition-shadow"
                          data-pieza-id="{{ $pieza['id'] }}"
                          data-color="{{ $pieza['color'] }}"
+                         data-imagen="{{ $pieza['imagen'] ?? '' }}"
                          draggable="true">
                         <div class="flex items-center gap-2">
-                            <div class="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center border-2"
+                            <div class="flex-shrink-0 pieza-hexagono flex items-center justify-center border-2 overflow-hidden"
                                  style="background-color: {{ $pieza['color'] }}; border-color: {{ $pieza['color'] }};">
-                                <span class="text-xs font-bold text-white drop-shadow">{{ $pieza['id'] }}</span>
+                                @if(!empty($pieza['imagen'] ?? null))
+                                    <img src="{{ asset('storage/' . $pieza['imagen']) }}"
+                                         alt="Pieza {{ $pieza['id'] }}"
+                                         class="w-full h-full object-contain">
+                                @else
+                                    <span class="text-xs font-bold text-white drop-shadow">{{ $pieza['id'] }}</span>
+                                @endif
                             </div>
                             <div class="flex-1">
                                 <p class="text-xs font-semibold text-gray-800">Pieza {{ $pieza['id'] }}</p>
@@ -58,13 +65,13 @@
             <div class="bg-white border-2 border-gray-300 rounded-lg p-3">
                 <div id="grid-rompecabezas" class="flex flex-col items-center gap-1">
                     @foreach($estructura as $filaIndex => $fila)
-                        <div class="flex gap-1 justify-center" style="margin-left: {{ $filaIndex * 20 }}px;">
+                        <div class="flex gap-1 justify-center" style="margin-left: {{ $filaIndex * 18 }}px;">
                             @foreach($fila as $colIndex => $celda)
                                 @if($celda === null)
                                     {{-- Celda vacía, no se muestra --}}
                                 @elseif(isset($celda['fija']) && $celda['fija'])
                                     {{-- Celda fija (ya colocada inicialmente) --}}
-                                    <div class="celda-hexagono w-14 h-14 rounded-lg flex items-center justify-center border-2 relative"
+                                    <div class="celda-hexagono flex items-center justify-center border-2 relative"
                                          style="background-color: {{ $celda['color'] }}; border-color: {{ $celda['color'] }};"
                                          data-fila="{{ $filaIndex }}"
                                          data-columna="{{ $celda['columna'] ?? $colIndex }}"
@@ -74,13 +81,14 @@
                                     </div>
                                 @else
                                     {{-- Celda vacía para colocar pieza --}}
-                                    <div class="celda-hexagono w-14 h-14 rounded-lg border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer flex items-center justify-center relative"
+                                    <div class="celda-hexagono border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer flex items-center justify-center relative"
                                          data-fila="{{ $filaIndex }}"
                                          data-columna="{{ $celda['columna'] ?? $colIndex }}"
                                          data-fija="false"
                                          data-ocupada="false">
                                         <span class="text-xs text-gray-400">{{ $celda['columna'] ?? $colIndex }}</span>
-                                        <div class="pieza-en-celda hidden absolute inset-0 flex items-center justify-center rounded-lg border-2">
+                                        <div class="pieza-en-celda hidden absolute inset-0 flex items-center justify-center border-2 overflow-hidden">
+                                            <img class="pieza-en-celda-imagen hidden w-full h-full object-contain" alt="">
                                             <span class="text-xs font-bold text-white drop-shadow"></span>
                                         </div>
                                     </div>
@@ -109,6 +117,20 @@
     
     .pieza-item.dragging {
         opacity: 0.5;
+    }
+    
+    /* Forma hexagonal para piezas y celdas del rompecabezas */
+    .pieza-hexagono,
+    .celda-hexagono,
+    .celda-hexagono .pieza-en-celda {
+        width: 3.25rem;
+        height: 3.25rem;
+        clip-path: polygon(
+            25% 3%, 75% 3%,
+            97% 50%,
+            75% 97%, 25% 97%,
+            3% 50%
+        );
     }
     
     .celda-hexagono {

@@ -1,5 +1,5 @@
 <script>
-    let colocaciones = {}; // { "fila-columna": {piezaId, color} }
+    let colocaciones = {}; // { "fila-columna": {id, color, rotacion, imagen?} }
     const config = @json($config ?? []);
     const piezasDisponibles = config.piezas_disponibles || [];
     const estructura = config.estructura || [];
@@ -20,7 +20,8 @@
             pieza.addEventListener('dragstart', function(e) {
                 e.dataTransfer.setData('text/plain', JSON.stringify({
                     id: this.dataset.piezaId,
-                    color: this.dataset.color
+                    color: this.dataset.color,
+                    imagen: this.dataset.imagen || ''
                 }));
                 this.classList.add('dragging');
             });
@@ -85,7 +86,39 @@
                     removerPiezaDeCelda(this);
                 }
             });
+
+            // Click simple para rotar pieza ya colocada
+            celda.addEventListener('click', function(e) {
+                if (!this.classList.contains('ocupada')) {
+                    return;
+                }
+                if (this.dataset.fija === 'true') {
+                    return;
+                }
+                rotarPiezaEnCelda(this);
+            });
         });
+    }
+
+    function rotarPiezaEnCelda(celda) {
+        const fila = parseInt(celda.dataset.fila);
+        const columna = parseInt(celda.dataset.columna);
+        const clave = `${fila}-${columna}`;
+
+        if (!colocaciones[clave]) {
+            return;
+        }
+
+        const rotacionActual = parseInt(celda.dataset.rotacion || '0');
+        const nuevaRotacion = (rotacionActual + 60) % 360; // rotar de 60 en 60 grados
+        celda.dataset.rotacion = nuevaRotacion;
+
+        const contenedorPieza = celda.querySelector('.pieza-en-celda');
+        if (contenedorPieza) {
+            contenedorPieza.style.transform = `rotate(${nuevaRotacion}deg)`;
+        }
+
+        colocaciones[clave].rotacion = nuevaRotacion;
     }
 
     function validarTriangulo(fila, columna, colorNuevo) {
@@ -135,12 +168,14 @@
         const fila = parseInt(celda.dataset.fila);
         const columna = parseInt(celda.dataset.columna);
         const clave = `${fila}-${columna}`;
+        const rotacion = piezaData.rotacion !== undefined ? piezaData.rotacion : 0;
 
         // Marcar celda como ocupada
         celda.classList.add('ocupada');
         celda.dataset.ocupada = 'true';
         celda.dataset.piezaId = piezaData.id;
         celda.dataset.color = piezaData.color;
+        celda.dataset.rotacion = rotacion;
 
         // Ocultar número de celda
         const numeroCelda = celda.querySelector('span');
@@ -151,19 +186,44 @@
         // Mostrar pieza en la celda
         const contenedorPieza = celda.querySelector('.pieza-en-celda');
         if (contenedorPieza) {
-            contenedorPieza.style.backgroundColor = piezaData.color;
-            contenedorPieza.style.borderColor = piezaData.color;
             const span = contenedorPieza.querySelector('span');
-            if (span) {
-                span.textContent = piezaData.id;
+            const img = contenedorPieza.querySelector('.pieza-en-celda-imagen');
+
+            if (piezaData.imagen) {
+                // Mostrar imagen de la pieza
+                contenedorPieza.style.backgroundColor = '';
+                contenedorPieza.style.borderColor = '';
+                if (img) {
+                    img.src = `/storage/${piezaData.imagen}`;
+                    img.alt = `Pieza ${piezaData.id}`;
+                    img.classList.remove('hidden');
+                }
+                if (span) {
+                    span.textContent = '';
+                }
+            } else {
+                // Mostrar pieza como hexágono de color con letra
+                contenedorPieza.style.backgroundColor = piezaData.color;
+                contenedorPieza.style.borderColor = piezaData.color;
+                if (img) {
+                    img.classList.add('hidden');
+                    img.removeAttribute('src');
+                }
+                if (span) {
+                    span.textContent = piezaData.id;
+                }
             }
+
+            contenedorPieza.style.transform = `rotate(${rotacion}deg)`;
             contenedorPieza.classList.remove('hidden');
         }
 
         // Guardar colocación
         colocaciones[clave] = {
             id: piezaData.id,
-            color: piezaData.color
+            color: piezaData.color,
+            rotacion: rotacion,
+            imagen: piezaData.imagen || null
         };
 
         // Remover pieza de la lista de disponibles
@@ -302,7 +362,8 @@
                 fila: fila,
                 columna: columna,
                 pieza: pieza.id,
-                color: pieza.color
+                color: pieza.color,
+                rotacion: pieza.rotacion !== undefined ? pieza.rotacion : 0
             };
         });
 
@@ -331,7 +392,9 @@
                     if (celda && celda.dataset.fija !== 'true') {
                         const piezaData = {
                             id: item.pieza,
-                            color: item.color || piezasDisponibles.find(p => p.id === item.pieza)?.color || 'gray'
+                            color: item.color || piezasDisponibles.find(p => p.id === item.pieza)?.color || 'gray',
+                            imagen: item.imagen || piezasDisponibles.find(p => p.id === item.pieza)?.imagen || '',
+                            rotacion: item.rotacion !== undefined ? item.rotacion : 0
                         };
                         colocarPiezaEnCelda(celda, piezaData);
                     }

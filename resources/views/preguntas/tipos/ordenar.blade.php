@@ -1,10 +1,13 @@
 
 <div class="grid md:grid-cols-2 gap-3">
     @php
-        // Mezclar los elementos de forma aleatoria (crear copia para no modificar el original)
-        $elementos = $pregunta->configuracion['elementos'];
-        $elementosMezclados = $elementos; // Crear copia
-        shuffle($elementosMezclados); // Mezclar la copia
+        $config = $pregunta->configuracion;
+        // Aceptar 'elementos' o 'opciones' (mapear valor -> nombre)
+        $elementos = $config['elementos'] ?? array_map(function ($o) {
+            return ['id' => $o['id'], 'nombre' => $o['valor'] ?? $o['nombre'] ?? $o['id']];
+        }, $config['opciones'] ?? []);
+        $elementosMezclados = $elementos;
+        shuffle($elementosMezclados);
     @endphp
     
     {{-- Elementos desordenados --}}
@@ -42,5 +45,5 @@
 </div>
 
 @if(isset($pregunta->configuracion['mostrar_numeros']) && $pregunta->configuracion['mostrar_numeros'])
-    <p class="text-sm text-gray-600 mt-3">Pist a: Puedes ponerles números del 1 al {{ count($pregunta->configuracion['elementos']) }}</p>
+    <p class="text-sm text-gray-600 mt-3">Pista: Puedes ponerles números del 1 al {{ count($elementos) }}</p>
 @endif
