@@ -17,8 +17,8 @@
 <div class="rellenar-container">
     {{-- Paleta de colores --}}
     <div class="mb-3">
-        <h4 class="text-sm font-semibold text-gray-800 mb-2">Selecciona un color:</h4>
-        <div class="flex gap-2 justify-center">
+        <h4 class="text-sm font-semibold text-gray-800 dark:text-neutral-200 mb-2">Selecciona un color:</h4>
+        <div class="flex flex-wrap gap-2 justify-center">
             @foreach($colores as $color)
                 @php
                     $colorNombre = $colorMap[$color] ?? $color;
@@ -50,9 +50,9 @@
         @endif
         
         {{-- Lista de áreas para colorear --}}
-        <div class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             @foreach($areas as $area)
-                <div class="area-item bg-white border-2 border-gray-300 rounded-lg p-2 hover:border-blue-500 transition-all cursor-pointer"
+                <div class="area-item bg-white dark:bg-neutral-800 border-2 border-gray-300 dark:border-neutral-600 rounded-lg p-3 min-h-[44px] hover:border-blue-500 dark:hover:border-blue-400 transition-all cursor-pointer flex items-center"
                      data-area-id="{{ $area['id'] }}"
                      onclick="seleccionarArea('{{ $area['id'] }}')">
                     <div class="flex items-center justify-between gap-2">

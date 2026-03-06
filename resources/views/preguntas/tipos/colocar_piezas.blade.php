@@ -14,7 +14,7 @@
         <strong>Instrucciones:</strong> Arrastra cada abeja desde la lista y colócala en la celda del panal según su regla.
     </div>
 
-    <div class="grid lg:grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {{-- Panel de abejas disponibles --}}
         <div class="lg:col-span-1">
             <h4 class="text-sm font-semibold text-gray-700 mb-2">
@@ -120,11 +120,24 @@
         position: relative;
     }
     
-    /* Forma hexagonal para las celdas del panal y las abejas dentro */
+    /* Forma hexagonal para las celdas del panal y las abejas dentro - responsive */
     .celda-panal,
     .celda-panal .abeja-en-celda {
-        width: 4rem;
-        height: 4rem;
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+    @media (min-width: 640px) {
+        .celda-panal,
+        .celda-panal .abeja-en-celda {
+            width: 3rem;
+            height: 3rem;
+        }
+    }
+    @media (min-width: 768px) {
+        .celda-panal,
+        .celda-panal .abeja-en-celda {
+            width: 4rem;
+            height: 4rem;
         clip-path: polygon(
             25% 3%, 75% 3%,
             97% 50%,

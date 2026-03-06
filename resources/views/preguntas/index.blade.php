@@ -1,8 +1,8 @@
 <x-layouts.app :title="__('Biblioteca de Preguntas')">
-    <div class="flex flex-col gap-6 p-4 lg:p-6">
+        <div class="flex flex-col gap-4 sm:gap-6 p-3 sm:p-4 lg:p-6">
 
         {{-- Header --}}
-        <div class="bg-white/95 dark:bg-neutral-900/90 border border-yellow-300/70 dark:border-neutral-700 rounded-3xl shadow-xl px-6 py-5">
+        <div class="bg-white/95 dark:bg-neutral-900/90 border border-yellow-300/70 dark:border-neutral-700 rounded-3xl shadow-xl px-4 sm:px-6 py-4 sm:py-5">
             <h1 class="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
                 Biblioteca de Preguntas
             </h1>
@@ -64,11 +64,11 @@
         @endauth
 
         {{-- Filtros --}}
-        <div class="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-6">
-            <div class="grid md:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-4 sm:p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Nivel</label>
-                    <select id="filtro-nivel" class="w-full border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-xl px-3 py-2 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all">
+                    <select id="filtro-nivel" class="w-full min-h-[44px] border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-xl px-3 py-2.5 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all touch-manipulation">
                         <option value="">Todos</option>
                         <option value="I">Nivel I</option>
                         <option value="II">Nivel II</option>
@@ -80,7 +80,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Dificultad</label>
-                    <select id="filtro-dificultad" class="w-full border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-xl px-3 py-2 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all">
+                    <select id="filtro-dificultad" class="w-full min-h-[44px] border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-xl px-3 py-2.5 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all touch-manipulation">
                         <option value="">Todas</option>
                         <option value="Baja">Baja</option>
                         <option value="Media">Media</option>
@@ -89,16 +89,16 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Estado</label>
-                    <select id="filtro-estado" class="w-full border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-xl px-3 py-2 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all">
+                    <select id="filtro-estado" class="w-full min-h-[44px] border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-xl px-3 py-2.5 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all touch-manipulation">
                         <option value="">Todas</option>
                         <option value="correcta">Correctas</option>
                         <option value="incorrecta">Incorrectas</option>
                         <option value="pendiente">Pendientes</option>
                     </select>
                 </div>
-                <div class="flex items-end">
+                <div class="flex items-end sm:col-span-2 md:col-span-1">
                     <button onclick="aplicarFiltros()"
-                            class="w-full bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white py-2.5 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                            class="w-full min-h-[44px] bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white py-3 sm:py-2.5 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation">
                         Aplicar Filtros
                     </button>
                 </div>
@@ -114,7 +114,7 @@
                 @endphp
 
                 <a href="{{ route('preguntas.show', $pregunta->id) }}"
-                   class="pregunta-card block bg-white dark:bg-neutral-900 rounded-2xl shadow-lg hover:shadow-xl border border-neutral-200 dark:border-neutral-800 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group"
+                   class="pregunta-card block bg-white dark:bg-neutral-900 rounded-2xl shadow-lg hover:shadow-xl border border-neutral-200 dark:border-neutral-800 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group min-h-[44px] active:scale-[0.98] touch-manipulation"
                    data-nivel="{{ $pregunta->nivel }}"
                    data-dificultad="{{ $pregunta->dificultad }}"
                    data-estado="{{ $yaRespondio ? ($esCorrecta ? 'correcta' : 'incorrecta') : 'pendiente' }}"

@@ -1,9 +1,9 @@
 
 <script>
-    let opcionSeleccionada = null;
+    var opcionSeleccionada = null;
 
     function seleccionarOpcion(btn) {
-        if (respondido) return;
+        if (window._bebrasResp) return;
 
         // Remover selección anterior
         document.querySelectorAll('.opcion-btn').forEach(b => {

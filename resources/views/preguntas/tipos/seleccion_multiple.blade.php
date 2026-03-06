@@ -26,7 +26,7 @@
                         @php
                             $estadoInfo = $estadosMap[$opcion] ?? ['nombre' => ucfirst($opcion), 'color' => 'text-gray-600', 'bg' => 'bg-gray-50'];
                         @endphp
-                        <label class="flex items-center p-2 border-2 border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-500 cursor-pointer transition-all {{ $estadoInfo['bg'] }}">
+                        <label class="opcion-seleccionada-multicolor flex items-center p-2 border-2 border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-500 cursor-pointer transition-all {{ $estadoInfo['bg'] }}">
                             <input 
                                 type="radio" 
                                 name="computadora_{{ $i }}" 
@@ -47,7 +47,7 @@
     {{-- Formato estándar: lista de opciones con checkboxes --}}
     <div class="space-y-2">
         @foreach($config['opciones'] ?? [] as $opcion)
-            <label class="flex items-center p-2 border-2 border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-500 cursor-pointer transition-all">
+            <label class="opcion-seleccionada-multicolor flex items-center p-2 border-2 border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-500 cursor-pointer transition-all">
                 <input 
                     type="checkbox" 
                     name="opciones[]" 

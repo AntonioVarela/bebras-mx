@@ -1,4 +1,24 @@
 <x-layouts.app :title="$pregunta->titulo . ' - Bebras Lab'">
+    @if(in_array($pregunta->tipo_interaccion, ['seleccion_multiple', 'completar']))
+    <style>
+        /* Borde multicolor con gradiente (amarillo → rosa → morado) */
+        .opcion-seleccionada-multicolor:has(input:checked),
+        .opcion-seleccion-multicolor:has(input:checked) {
+            border: 3px solid transparent !important;
+            background: linear-gradient(#fff, #fff) padding-box,
+                        linear-gradient(90deg, #eab308 0%, #ec4899 50%, #8b5cf6 100%) border-box !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+        }
+        .dark .opcion-seleccionada-multicolor:has(input:checked),
+        .dark .opcion-seleccion-multicolor:has(input:checked) {
+            background: linear-gradient(#262626, #262626) padding-box,
+                        linear-gradient(90deg, #eab308 0%, #ec4899 50%, #8b5cf6 100%) border-box !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+        }
+    </style>
+    @endif
     @if($pregunta->tipo_interaccion === 'ordenar')
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     @endif
@@ -6,22 +26,22 @@
     <div class="flex flex-col gap-6 p-4 lg:p-6">
 
         {{-- Barra superior: volver + número de pregunta --}}
-        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 px-4 py-3 flex items-center justify-between">
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
             <a href="{{ route('preguntas.index') }}"
-               class="text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300 flex items-center gap-2 font-semibold transition-colors"
-               wire:navigate>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               class="text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300 flex items-center gap-1.5 sm:gap-2 font-semibold text-sm sm:text-base transition-colors min-h-[44px] min-w-[44px] flex-shrink-0"
+>
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
-                Volver a preguntas
+                <span class="hidden xs:inline sm:inline">Volver</span>
             </a>
-            <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-4 py-1.5 rounded-full">
-                Pregunta {{ $pregunta->numero }} de 27
+            <span class="text-xs sm:text-sm font-semibold text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-3 sm:px-4 py-1.5 rounded-full whitespace-nowrap">
+                {{ $pregunta->numero }}/27
             </span>
         </div>
 
         {{-- Descripción --}}
-        <div class="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-6">
+        <div class="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-4 sm:p-6">
             <h2 class="text-xl font-bold text-neutral-900 dark:text-white mb-2">
                 {{ $pregunta->numero }}. {{ $pregunta->titulo }}
             </h2>
@@ -36,22 +56,22 @@
             </div>
             <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed whitespace-pre-line">{{ $pregunta->descripcion }}</p>
             @if($pregunta->imagen_descripcion)
-                <div class="mt-4 flex justify-center">
+                <div class="mt-4 flex justify-center overflow-x-auto">
                     <img src="{{ asset('storage/' . $pregunta->imagen_descripcion) }}" alt="Descripción"
-                         class="max-w-full max-h-48 rounded-xl shadow-lg object-contain border border-neutral-200 dark:border-neutral-700">
+                         class="max-w-full max-h-36 sm:max-h-48 rounded-xl shadow-lg object-contain border border-neutral-200 dark:border-neutral-700">
                 </div>
             @endif
         </div>
 
         {{-- Pregunta e interacción --}}
-        <div class="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-6">
+        <div class="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-4 sm:p-6">
             <h3 class="text-lg font-bold text-neutral-800 dark:text-white mb-4 pb-3 border-b-2 border-pink-500">
                 {{ $pregunta->pregunta }}
             </h3>
             @if($pregunta->imagen_pregunta)
-                <div class="mb-4 flex justify-center">
+                <div class="mb-4 flex justify-center overflow-x-auto">
                     <img src="{{ asset('storage/' . $pregunta->imagen_pregunta) }}" alt="Pregunta"
-                         class="max-w-full max-h-48 rounded-xl shadow-lg object-contain border border-neutral-200 dark:border-neutral-700">
+                         class="max-w-full max-h-36 sm:max-h-48 rounded-xl shadow-lg object-contain border border-neutral-200 dark:border-neutral-700">
                 </div>
             @endif
 
@@ -81,7 +101,7 @@
             <button id="btnVerificar"
                     onclick="verificarRespuesta()"
                     @if(empty($pregunta->tipo_interaccion)) disabled @endif
-                    class="w-full bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white py-3.5 px-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 font-bold text-base flex items-center justify-center gap-2 @if(empty($pregunta->tipo_interaccion)) opacity-50 cursor-not-allowed @endif">
+                    class="w-full min-h-[48px] bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white py-3.5 px-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 font-bold text-sm sm:text-base flex items-center justify-center gap-2 touch-manipulation @if(empty($pregunta->tipo_interaccion)) opacity-50 cursor-not-allowed @endif">
                 @if(empty($pregunta->tipo_interaccion))
                     Tipo de Interacción No Disponible
                 @else
@@ -93,15 +113,15 @@
             <div id="resultado" class="hidden mt-4"></div>
 
             {{-- Navegación --}}
-            <div id="navegacion" class="hidden mt-4 flex gap-3">
+            <div id="navegacion" class="hidden mt-4 flex flex-col sm:flex-row gap-3">
                 @php
                     $preguntaAnterior = \App\Models\Pregunta::where('numero', '<', $pregunta->numero)->orderBy('numero', 'desc')->first();
                     $preguntaSiguiente = \App\Models\Pregunta::where('numero', '>', $pregunta->numero)->orderBy('numero', 'asc')->first();
                 @endphp
                 @if($preguntaAnterior)
                     <a href="{{ route('preguntas.show', $preguntaAnterior->id) }}"
-                       class="flex-1 py-2.5 px-4 rounded-2xl font-semibold text-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
-                       wire:navigate>
+                       class="flex-1 min-h-[44px] py-2.5 px-4 rounded-2xl font-semibold text-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2 touch-manipulation"
+>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         Anterior
                     </a>
@@ -110,15 +130,15 @@
                 @endif
                 @if($preguntaSiguiente)
                     <a href="{{ route('preguntas.show', $preguntaSiguiente->id) }}"
-                       class="flex-1 bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white py-2.5 px-4 rounded-2xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-                       wire:navigate>
+                       class="flex-1 min-h-[44px] bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white py-2.5 px-4 rounded-2xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 touch-manipulation"
+>
                         Siguiente
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
                 @else
                     <a href="{{ route('preguntas.index') }}"
-                       class="flex-1 bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white py-2.5 px-4 rounded-2xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-                       wire:navigate>
+                       class="flex-1 min-h-[44px] bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 hover:from-yellow-500 hover:via-pink-500 hover:to-purple-600 text-white py-2.5 px-4 rounded-2xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 touch-manipulation"
+>
                         Finalizar
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     </a>
@@ -135,9 +155,9 @@
     @endif
 
     <script>
-        let respondido = {{ $yaRespondio ? 'true' : 'false' }};
-        const preguntaId = {{ $pregunta->id }};
-        const yaRespondioAntes = {{ $yaRespondio ? 'true' : 'false' }};
+        window._bebrasResp = {{ $yaRespondio ? 'true' : 'false' }};
+        window._bebrasPregId = {{ $pregunta->id }};
+        window._bebrasYaResp = {{ $yaRespondio ? 'true' : 'false' }};
 
         @if($yaRespondio)
         document.addEventListener('DOMContentLoaded', function() {
@@ -168,16 +188,23 @@
         @endif
 
         function verificarRespuesta() {
-            if (respondido || yaRespondioAntes) { alert('Ya respondiste esta pregunta anteriormente.'); return; }
+            const btnVerificar = document.getElementById('btnVerificar');
+            if (window._bebrasResp || window._bebrasYaResp) {
+                btnVerificar.disabled = true;
+                return; // No mostrar alert en móvil (evita modal intrusivo por doble toque)
+            }
             const respuesta = obtenerRespuesta();
             if (!respuesta) { alert('Por favor completa tu respuesta antes de verificar'); return; }
-            fetch('/preguntas/' + preguntaId + '/verificar', {
+            btnVerificar.disabled = true;
+            btnVerificar.classList.add('opacity-50', 'cursor-not-allowed');
+            btnVerificar.innerHTML = '<span>Verificando...</span>';
+            fetch('/preguntas/' + window._bebrasPregId + '/verificar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
                 body: JSON.stringify({ respuesta })
             })
             .then(r => r.json())
-            .then(data => { respondido = true; mostrarResultado(data); deshabilitarInteraccion(); mostrarNavegacion(); })
+            .then(data => { window._bebrasResp = true; mostrarResultado(data); deshabilitarInteraccion(); mostrarNavegacion(); })
             .catch(e => { console.error(e); alert('Hubo un error al verificar la respuesta'); });
         }
 

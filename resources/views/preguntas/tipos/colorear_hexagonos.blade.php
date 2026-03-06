@@ -34,23 +34,23 @@
     }
 @endphp
 
-<div class="colorear-hexagonos-container">
+<div class="colorear-hexagonos-container overflow-x-auto">
     {{-- Instrucciones --}}
-    <div class="bg-blue-50 border-l-4 border-blue-500 p-2 rounded mb-2 text-xs text-blue-800">
-        <strong>Instrucciones:</strong> Selecciona un color y haz clic en un hexágono vacío para colorearlo. Cada triángulo formado (hexágono nuevo + 2 de abajo) debe tener todas las piezas del mismo color O todas de colores diferentes.
+    <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-3 rounded-lg mb-3 text-xs text-blue-800 dark:text-blue-200">
+        <strong>Instrucciones:</strong> Selecciona un color y toca un hexágono vacío para colorearlo. Cada triángulo formado (hexágono nuevo + 2 de abajo) debe tener todas las piezas del mismo color O todas de colores diferentes.
     </div>
 
     {{-- Paleta de colores --}}
     <div class="mb-3">
-        <h4 class="text-sm font-semibold text-gray-800 mb-2">Selecciona un color:</h4>
-        <div class="flex gap-2 justify-center">
+        <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Selecciona un color:</h4>
+        <div class="flex flex-wrap gap-2 justify-center">
             @foreach($coloresDisponibles as $color)
                 @php
                     $colorInfo = $colorMap[$color] ?? ['nombre' => ucfirst($color), 'clase' => 'bg-gray-500', 'valor' => $color];
                 @endphp
                 <button 
                     type="button"
-                    class="color-btn px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-md border-2 {{ $colorInfo['clase'] }} hover:opacity-80"
+                    class="color-btn px-4 py-3 min-h-[44px] rounded-lg text-sm font-semibold text-white transition-all shadow-md border-2 {{ $colorInfo['clase'] }} hover:opacity-80 active:scale-95 touch-manipulation"
                     data-color="{{ $colorInfo['valor'] }}"
                     onclick="seleccionarColor('{{ $colorInfo['valor'] }}')">
                     {{ $colorInfo['nombre'] }}
@@ -60,7 +60,7 @@
     </div>
 
     {{-- Grid piramidal del rompecabezas --}}
-    <div class="bg-white border-2 border-gray-300 rounded-lg p-4">
+    <div class="bg-white dark:bg-neutral-800 border-2 border-gray-300 dark:border-neutral-600 rounded-lg p-3 sm:p-4">
         @php
             $totalCeldas = 0;
             foreach ($estructura as $fila) {
@@ -89,7 +89,7 @@
                         @php $numeroHexagono++; @endphp
                         @if($hexagono['fija'])
                             {{-- Hexágono fijo (ya coloreado inicialmente) --}}
-                            <div class="hexagono-celda w-16 h-16 flex items-center justify-center border-2 relative cursor-default"
+                            <div class="hexagono-celda w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 flex items-center justify-center border-2 relative cursor-default touch-manipulation"
                                  style="background-color: {{ $hexagono['color'] === 'verde' ? '#10b981' : ($hexagono['color'] === 'amarillo' ? '#facc15' : '#3b82f6') }}; border-color: {{ $hexagono['color'] === 'verde' ? '#059669' : ($hexagono['color'] === 'amarillo' ? '#eab308' : '#2563eb') }};"
                                  data-fila="{{ $filaIndex }}"
                                  data-columna="{{ $colIndex }}"
@@ -99,7 +99,7 @@
                             </div>
                         @else
                             {{-- Hexágono vacío para colorear --}}
-                            <div class="hexagono-celda w-16 h-16 border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer flex items-center justify-center relative"
+                            <div class="hexagono-celda w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-all cursor-pointer flex items-center justify-center relative touch-manipulation min-w-[40px] min-h-[40px]"
                                  data-fila="{{ $filaIndex }}"
                                  data-columna="{{ $colIndex }}"
                                  data-fija="false"
@@ -115,7 +115,7 @@
     </div>
 
     {{-- Resumen de colocación --}}
-    <div class="mt-2 bg-gray-50 border border-gray-200 rounded-lg p-2">
+    <div class="mt-2 bg-gray-50 dark:bg-neutral-800/50 border border-gray-200 dark:border-neutral-600 rounded-lg p-3">
         <h5 class="text-xs font-semibold text-gray-700 mb-1">Hexágonos coloreados:</h5>
         <div id="resumen-colocacion" class="text-xs text-gray-600">
             <p>Ningún hexágono coloreado aún.</p>

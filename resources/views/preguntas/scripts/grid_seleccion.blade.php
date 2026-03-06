@@ -1,6 +1,6 @@
 <script>
     function toggleCelda(btn) {
-        if (respondido) return;
+        if (window._bebrasResp) return;
 
         const activa = btn.dataset.activa === '1';
         btn.dataset.activa = activa ? '0' : '1';

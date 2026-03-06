@@ -985,6 +985,8 @@ En las mañanas, cuando los pilotos llegan a sacar sus aviones, la posición 1 s
                 'imagen_pregunta' => null,
                 'tipo_interaccion' => 'completar',
                 'configuracion' => json_encode([
+                    'formato' => 'slots',
+                    'slots' => ['martes' => 'Martes', 'miercoles' => 'Miércoles'],
                     'opciones' => [
                         ['id' => 'manzana', 'valor' => 'Manzana'],
                         ['id' => 'pera', 'valor' => 'Pera'],
@@ -1537,6 +1539,8 @@ En las mañanas, cuando los pilotos llegan a sacar sus aviones, la posición 1 s
                 'imagen_pregunta' => null,
                 'tipo_interaccion' => 'completar',
                 'configuracion' => json_encode([
+                    'formato' => 'blanks',
+                    'blanks' => 3,
                     'opciones' => [
                         ['id' => 'padre', 'valor' => 'padre'],
                         ['id' => 'madre', 'valor' => 'madre'],
@@ -1696,6 +1700,7 @@ En las mañanas, cuando los pilotos llegan a sacar sus aviones, la posición 1 s
                 'imagen_pregunta' => 'preguntas/55/fila.png',
                 'tipo_interaccion' => 'completar',
                 'configuracion' => json_encode([
+                    'formato' => 'string',
                     'opciones' => [
                         ['id' => 'B', 'valor' => 'B'],
                         ['id' => 'N', 'valor' => 'N'],

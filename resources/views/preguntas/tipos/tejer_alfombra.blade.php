@@ -66,7 +66,7 @@
                         @for($col = 1; $col <= $columnas; $col++)
                             <button 
                                 type="button"
-                                class="celda-alfombra w-12 h-12 border-2 border-gray-300 rounded-lg transition-all mr-1 relative bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                                class="celda-alfombra w-10 h-10 sm:w-12 sm:h-12 border-2 border-gray-300 rounded-lg transition-all mr-1 relative bg-gray-50 hover:bg-gray-100 cursor-pointer min-w-[2.5rem] min-h-[2.5rem] sm:min-w-[3rem] sm:min-h-[3rem] touch-manipulation"
                                 data-fila="{{ $fila }}"
                                 data-columna="{{ $col }}"
                                 onclick="colorearCelda(this)">
@@ -97,6 +97,20 @@
     .simbolo-btn.seleccionado {
         transform: scale(1.1);
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Celdas más pequeñas en móvil para que quepan en pantalla */
+    @media (max-width: 640px) {
+        .celda-alfombra {
+            width: 2.25rem !important;
+            height: 2.25rem !important;
+            min-width: 2.25rem;
+            min-height: 2.25rem;
+        }
+        .celda-alfombra .celda-coordenadas { font-size: 0.6rem; }
+        .celda-alfombra .celda-simbolo { font-size: 0.875rem; }
+        .tejer-alfombra-container .pl-8 { padding-left: 1.5rem; }
+        .tejer-alfombra-container [class*="w-8"] { width: 1.5rem; }
     }
 </style>
 

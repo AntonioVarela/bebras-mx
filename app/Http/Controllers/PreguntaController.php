@@ -143,7 +143,10 @@ class PreguntaController extends Controller
             
             case 'tejer_alfombra':
                 return $this->validarTejerAlfombra($usuario, $correcta);
-            
+
+            case 'completar':
+                return $this->validarCompletar($usuario, $correcta);
+
             default:
                 return false;
         }
@@ -626,6 +629,75 @@ class PreguntaController extends Controller
         return true;
     }
 
+    private function validarCompletar($usuario, $correcta)
+    {
+        if (!$usuario || !$correcta) {
+            return false;
+        }
+
+        // Respuesta como string (ej: 'XXXBNBXNXNB')
+        if (is_string($correcta)) {
+            $correcta = [$correcta];
+        }
+        if (isset($correcta[0]) && is_string($correcta[0]) && !is_array($correcta[0])) {
+            $respuestaUsuario = is_array($usuario) ? ($usuario[0] ?? '') : (string)$usuario;
+            foreach ((array)$correcta as $opcion) {
+                if (trim(strtolower((string)$respuestaUsuario)) === trim(strtolower((string)$opcion))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Respuesta como array de ids en orden (ej: ['planta_recta', 'tallo_curvo', 'flor', 'trazos'])
+        if (isset($correcta[0]) && is_string($correcta[0])) {
+            $usuarioFlat = is_array($usuario) ? $usuario : [$usuario];
+            if (count($usuarioFlat) !== count($correcta)) {
+                return false;
+            }
+            return $usuarioFlat === $correcta;
+        }
+
+        // Respuesta como objeto/array asociativo (ej: {martes: 'manzana', miercoles: 'pera})
+        if (is_array($correcta) && isset($correcta[0]) && is_array($correcta[0])) {
+            foreach ($correcta as $solucion) {
+                if ($this->compararCompletarObjeto($usuario, $solucion)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if (is_array($correcta) && !isset($correcta[0])) {
+            return $this->compararCompletarObjeto($usuario, $correcta);
+        }
+
+        return false;
+    }
+
+    private function compararCompletarObjeto($usuario, $correcta)
+    {
+        if (!is_array($usuario) || !is_array($correcta)) {
+            return false;
+        }
+        foreach ($correcta as $key => $valorCorrecto) {
+            $valorUsuario = $usuario[$key] ?? null;
+            if (is_array($valorCorrecto)) {
+                if (!is_array($valorUsuario) || count($valorUsuario) !== count($valorCorrecto)) {
+                    return false;
+                }
+                sort($valorUsuario);
+                sort($valorCorrecto);
+                if ($valorUsuario !== $valorCorrecto) {
+                    return false;
+                }
+            } elseif (($usuario[$key] ?? null) != $valorCorrecto) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private function formatearRespuestaCorrecta($tipo, $correcta)
     {
         switch ($tipo) {
@@ -690,7 +762,10 @@ class PreguntaController extends Controller
             
             case 'tejer_alfombra':
                 return 'Revisa la explicación para ver la solución completa del grid.';
-            
+
+            case 'completar':
+                return 'Revisa la explicación para ver la solución completa.';
+
             default:
                 return '';
         }

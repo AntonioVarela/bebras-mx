@@ -15,7 +15,7 @@
         <strong>Instrucciones:</strong> Arrastra las piezas hexagonales al rompecabezas. Cada triángulo formado (pieza nueva + 2 de abajo) debe tener todas las piezas del mismo color O todas de colores diferentes.
     </div>
 
-    <div class="grid lg:grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {{-- Panel de piezas disponibles --}}
         <div class="lg:col-span-1">
             <h4 class="text-sm font-semibold text-gray-700 mb-2">
@@ -119,12 +119,12 @@
         opacity: 0.5;
     }
     
-    /* Forma hexagonal para piezas y celdas del rompecabezas */
+    /* Forma hexagonal para piezas y celdas del rompecabezas - responsive */
     .pieza-hexagono,
     .celda-hexagono,
     .celda-hexagono .pieza-en-celda {
-        width: 3.25rem;
-        height: 3.25rem;
+        width: 2.25rem;
+        height: 2.25rem;
         clip-path: polygon(
             25% 3%, 75% 3%,
             97% 50%,
@@ -155,6 +155,24 @@
     
     .celda-hexagono[data-fija="true"] {
         cursor: default;
+    }
+    
+    @media (min-width: 640px) {
+        .pieza-hexagono,
+        .celda-hexagono,
+        .celda-hexagono .pieza-en-celda {
+            width: 2.75rem;
+            height: 2.75rem;
+        }
+    }
+    
+    @media (min-width: 768px) {
+        .pieza-hexagono,
+        .celda-hexagono,
+        .celda-hexagono .pieza-en-celda {
+            width: 3.25rem;
+            height: 3.25rem;
+        }
     }
 </style>
 

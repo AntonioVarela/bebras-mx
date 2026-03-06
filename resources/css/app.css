@@ -64,3 +64,11 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* Borde multicolor para opciones seleccionadas (selección múltiple) */
+.opcion-seleccionada-multicolor:has(input:checked),
+.opcion-seleccion-multicolor:has(input:checked) {
+    border-color: transparent !important;
+    box-shadow: 0 0 0 2px #eab308, 0 0 0 4px #ec4899, 0 0 0 6px #8b5cf6 !important;
+    overflow: visible !important;
+}
