@@ -1,21 +1,47 @@
 <x-layouts.app :title="$pregunta->titulo . ' - Bebras Lab'">
-    @if(in_array($pregunta->tipo_interaccion, ['seleccion_multiple', 'completar']))
+    @if(in_array($pregunta->tipo_interaccion, ['seleccion_simple', 'seleccion_multiple', 'completar']))
     <style>
-        /* Borde multicolor con gradiente (amarillo → rosa → morado) */
+        /* Borde eléctrico neón (cian → violeta → magenta) para opciones seleccionadas */
         .opcion-seleccionada-multicolor:has(input:checked),
-        .opcion-seleccion-multicolor:has(input:checked) {
-            border: 3px solid transparent !important;
-            background: linear-gradient(#fff, #fff) padding-box,
-                        linear-gradient(90deg, #eab308 0%, #ec4899 50%, #8b5cf6 100%) border-box !important;
+        .opcion-seleccion-multicolor:has(input:checked),
+        .opcion-btn.opcion-seleccionada {
+            border: 4px solid transparent !important;
+            background: linear-gradient(#e0f7ff, #e0f7ff) padding-box,
+                        linear-gradient(90deg, #00f5ff 0%, #bf00ff 50%, #ff00aa 100%) border-box !important;
             background-origin: border-box !important;
             background-clip: padding-box, border-box !important;
+            box-shadow: 0 4px 24px rgba(0, 245, 255, 0.45), 0 0 0 1px rgba(191, 0, 255, 0.3) !important;
         }
         .dark .opcion-seleccionada-multicolor:has(input:checked),
-        .dark .opcion-seleccion-multicolor:has(input:checked) {
-            background: linear-gradient(#262626, #262626) padding-box,
-                        linear-gradient(90deg, #eab308 0%, #ec4899 50%, #8b5cf6 100%) border-box !important;
+        .dark .opcion-seleccion-multicolor:has(input:checked),
+        .dark .opcion-btn.opcion-seleccionada {
+            background: linear-gradient(#1a1a2e, #1a1a2e) padding-box,
+                        linear-gradient(90deg, #00f5ff 0%, #bf00ff 50%, #ff00aa 100%) border-box !important;
             background-origin: border-box !important;
             background-clip: padding-box, border-box !important;
+            box-shadow: 0 4px 24px rgba(0, 245, 255, 0.55), 0 0 0 1px rgba(191, 0, 255, 0.4) !important;
+        }
+        /* Borde eléctrico al hacer hover o click (feedback inmediato) */
+        .opcion-btn:hover,
+        .opcion-btn:active,
+        .opcion-seleccionada-multicolor:hover,
+        .opcion-seleccionada-multicolor:active {
+            border: 4px solid transparent !important;
+            background: linear-gradient(#e0f7ff, #e0f7ff) padding-box,
+                        linear-gradient(90deg, #00f5ff 0%, #bf00ff 50%, #ff00aa 100%) border-box !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+            box-shadow: 0 4px 24px rgba(0, 245, 255, 0.45), 0 0 0 1px rgba(191, 0, 255, 0.3) !important;
+        }
+        .dark .opcion-btn:hover,
+        .dark .opcion-btn:active,
+        .dark .opcion-seleccionada-multicolor:hover,
+        .dark .opcion-seleccionada-multicolor:active {
+            background: linear-gradient(#1a1a2e, #1a1a2e) padding-box,
+                        linear-gradient(90deg, #00f5ff 0%, #bf00ff 50%, #ff00aa 100%) border-box !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+            box-shadow: 0 4px 24px rgba(0, 245, 255, 0.55), 0 0 0 1px rgba(191, 0, 255, 0.4) !important;
         }
     </style>
     @endif

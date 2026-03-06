@@ -7,13 +7,11 @@
 
         // Remover selección anterior
         document.querySelectorAll('.opcion-btn').forEach(b => {
-            b.classList.remove('border-blue-600', 'bg-blue-100', 'border-4');
-            b.classList.add('border-gray-300', 'border-3');
+            b.classList.remove('opcion-seleccionada');
         });
 
-        // Marcar nueva selección
-        btn.classList.remove('border-gray-300', 'border-3');
-        btn.classList.add('border-blue-600', 'bg-blue-100', 'border-4');
+        // Marcar nueva selección con color muy visible
+        btn.classList.add('opcion-seleccionada');
         opcionSeleccionada = btn.dataset.opcion;
     }
 
