@@ -1520,7 +1520,7 @@ En las mañanas, cuando los pilotos llegan a sacar sus aviones, la posición 1 s
                     ],
                     'dias' => ['Domingo 1', 'Domingo 2', 'Domingo 3', 'Domingo 4', 'Domingo 5'],
                 ]),
-                'respuesta_correcta' => json_encode(['domingo1' => ['A'], 'domingo2' => ['B','C'], 'domingo3' => ['A','D','E'], 'domingo4' => ['B','C','D','E'], 'domingo5' => ['A','B','C','D','E']]),
+                'respuesta_correcta' => json_encode(['domingo1' => ['A'], 'domingo2' => ['B', 'C'], 'domingo3' => ['A', 'D', 'E'], 'domingo4' => ['B', 'C', 'D', 'E'], 'domingo5' => ['A', 'B', 'C', 'D', 'E']]),
                 'explicacion' => 'Suma total de encendidas: 1+2+3+4+5=15. Con 5 velas, 15/5=3: cada vela debe prenderse exactamente 3 veces. Una estrategia: Domingo 1 prendes A y Domingo 4 prendes B,C,D,E (todas usadas 1 vez). Domingo 2 prendes B y C; Domingo 3 prendes A, D y E (todas usadas otra vez). Domingo 5 prendes todas. No es la única solución.',
                 'imagen_respuesta' => 'preguntas/48/respuesta.png',
                 'nivel' => 'III',
@@ -1565,6 +1565,7 @@ En las mañanas, cuando los pilotos llegan a sacar sus aviones, la posición 1 s
                 'imagen_pregunta' => null,
                 'tipo_interaccion' => 'completar',
                 'configuracion' => json_encode([
+                    'comparar_como_conjunto' => true,
                     'opciones' => [
                         ['id' => 'Lunes', 'valor' => 'Lunes'],
                         ['id' => 'Martes', 'valor' => 'Martes'],
@@ -1753,6 +1754,7 @@ En las mañanas, cuando los pilotos llegan a sacar sus aviones, la posición 1 s
                 'imagen_pregunta' => null,
                 'tipo_interaccion' => 'completar',
                 'configuracion' => json_encode([
+                    'comparar_como_conjunto' => true,
                     'opciones' => [
                         ['id' => 'A', 'valor' => 'Parada A'],
                         ['id' => 'C', 'valor' => 'Parada C'],

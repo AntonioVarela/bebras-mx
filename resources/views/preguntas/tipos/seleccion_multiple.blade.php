@@ -44,9 +44,13 @@
         @endfor
     </div>
 @else
-    {{-- Formato estándar: lista de opciones con checkboxes --}}
+    {{-- Formato estándar: lista de opciones con checkboxes (orden aleatorio) --}}
+    @php
+        $opcionesMulti = $config['opciones'] ?? [];
+        shuffle($opcionesMulti);
+    @endphp
     <div class="space-y-2">
-        @foreach($config['opciones'] ?? [] as $opcion)
+        @foreach($opcionesMulti as $opcion)
             <label class="opcion-seleccionada-multicolor flex items-center p-2 border-2 border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-500 cursor-pointer transition-all">
                 <input 
                     type="checkbox" 

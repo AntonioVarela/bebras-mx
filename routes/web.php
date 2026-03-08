@@ -36,15 +36,15 @@ Route::middleware(['auth'])->group(function () {
         )
         ->name('two-factor.show');
 
-    // Rutas de Preguntas
+    // Rutas de Preguntas (id debe ser numérico)
     Route::get('/preguntas', [PreguntaController::class, 'index'])->name('preguntas.index');
-    Route::get('/preguntas/{id}', [PreguntaController::class, 'show'])->name('preguntas.show');
-    Route::post('/preguntas/{id}/verificar', [PreguntaController::class, 'verificar'])->name('preguntas.verificar');
-    
-    // Rutas de Admin
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/preguntas/{id}', [PreguntaController::class, 'show'])->name('preguntas.show')->where('id', '[0-9]+');
+    Route::post('/preguntas/{id}/verificar', [PreguntaController::class, 'verificar'])->name('preguntas.verificar')->where('id', '[0-9]+');
+
+    // Rutas de Admin (solo role admin; ids numéricos)
+    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/alumno/{id}/progreso', [DashboardController::class, 'verProgreso'])->name('progreso');
-        Route::post('/preguntas/{id}/toggle', [DashboardController::class, 'togglePregunta'])->name('preguntas.toggle');
+        Route::get('/alumno/{id}/progreso', [DashboardController::class, 'verProgreso'])->name('progreso')->where('id', '[0-9]+');
+        Route::post('/preguntas/{id}/toggle', [DashboardController::class, 'togglePregunta'])->name('preguntas.toggle')->where('id', '[0-9]+');
     });
 });

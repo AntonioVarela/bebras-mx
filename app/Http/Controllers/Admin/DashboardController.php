@@ -23,6 +23,7 @@ class DashboardController extends Controller
 
     public function togglePregunta($id)
     {
+        $id = (int) $id;
         $pregunta = Pregunta::findOrFail($id);
         $pregunta->activa = !$pregunta->activa;
         $pregunta->save();
@@ -36,7 +37,13 @@ class DashboardController extends Controller
 
     public function verProgreso($userId)
     {
+        $userId = (int) $userId;
         $alumno = User::with(['progresos.pregunta'])->findOrFail($userId);
+
+        if (! $alumno->isAlumno()) {
+            abort(404, 'No se encontró el progreso del alumno.');
+        }
+
         $preguntas = Pregunta::orderBy('numero')->get();
         
         // Crear array de progreso

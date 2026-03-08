@@ -3,29 +3,13 @@
 
         {{-- Header dentro del layout principal --}}
         <div
-            class="bg-white/95 dark:bg-neutral-900/90 border border-yellow-300/70 rounded-3xl shadow-xl px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-                    Panel de Administración
-                </h1>
-                <p class="text-sm md:text-base text-neutral-600 dark:text-neutral-300 font-medium">
-                    Bebras Lab - Primavera 2025
-                </p>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <a href="{{ route('preguntas.index') }}"
-                    class="inline-flex items-center gap-2 rounded-2xl border border-purple-300 bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 hover:bg-purple-100 hover:border-purple-400 transition-colors">
-                    <span>Ver Preguntas</span>
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
-                        class="inline-flex items-center gap-2 rounded-2xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 hover:border-red-400 transition-colors">
-                        Cerrar Sesión
-                    </button>
-                </form>
-            </div>
+            class="bg-white/95 dark:bg-neutral-900/90 border border-yellow-300/70 rounded-3xl shadow-xl px-6 py-5">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+                Panel de Administración
+            </h1>
+            <p class="text-sm md:text-base text-neutral-600 dark:text-neutral-300 font-medium mt-1">
+                Bebras Lab - Primavera 2025
+            </p>
         </div>
 
         {{-- Contenedor principal con tabs y contenido en tarjeta --}}

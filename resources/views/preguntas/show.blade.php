@@ -185,6 +185,13 @@
         window._bebrasPregId = {{ $pregunta->id }};
         window._bebrasYaResp = {{ $yaRespondio ? 'true' : 'false' }};
 
+        function escapeHtml(str) {
+            if (str == null || str === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
         @if($yaRespondio)
         document.addEventListener('DOMContentLoaded', function() {
             const btnVerificar = document.getElementById('btnVerificar');
@@ -205,10 +212,10 @@
             resultado.classList.remove('hidden');
             if (data.correcta) {
                 resultado.className = 'mt-4 p-4 rounded-2xl bg-green-50 dark:bg-green-900/20 border-2 border-green-500 dark:border-green-600';
-                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-green-800 dark:text-green-200 text-lg mb-2">¡Respondiste Correctamente! 🎉</h4><p class="text-sm text-green-700 dark:text-green-300 leading-snug mb-2">' + data.explicacion + '</p>' + (data.imagen_respuesta ? '<div class="mt-2 flex justify-center"><img src="/storage/' + data.imagen_respuesta + '" alt="Solución" class="max-w-full max-h-48 rounded-xl shadow-md object-contain"></div>' : '') + '</div></div>';
+                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-green-800 dark:text-green-200 text-lg mb-2">¡Respondiste Correctamente! 🎉</h4><p class="text-sm text-green-700 dark:text-green-300 leading-snug mb-2">' + escapeHtml(data.explicacion) + '</p>' + (data.imagen_respuesta ? '<div class="mt-2 flex justify-center"><img src="/storage/' + escapeHtml(data.imagen_respuesta) + '" alt="Solución" class="max-w-full max-h-48 rounded-xl shadow-md object-contain"></div>' : '') + '</div></div>';
             } else {
                 resultado.className = 'mt-4 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border-2 border-red-500 dark:border-red-600';
-                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-red-800 dark:text-red-200 text-lg mb-2">Tu respuesta fue incorrecta</h4><p class="text-sm text-red-700 dark:text-red-300 leading-snug mb-2">' + data.explicacion + '</p>' + (data.imagen_respuesta ? '<div class="mt-2 flex justify-center"><img src="/storage/' + data.imagen_respuesta + '" alt="Solución" class="max-w-full max-h-48 rounded-xl shadow-md object-contain"></div>' : '') + '</div></div>';
+                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-red-800 dark:text-red-200 text-lg mb-2">Tu respuesta fue incorrecta</h4><p class="text-sm text-red-700 dark:text-red-300 leading-snug mb-2">' + escapeHtml(data.explicacion) + '</p>' + (data.imagen_respuesta ? '<div class="mt-2 flex justify-center"><img src="/storage/' + escapeHtml(data.imagen_respuesta) + '" alt="Solución" class="max-w-full max-h-48 rounded-xl shadow-md object-contain"></div>' : '') + '</div></div>';
             }
         }
         @endif
@@ -220,7 +227,11 @@
                 return; // No mostrar alert en móvil (evita modal intrusivo por doble toque)
             }
             const respuesta = obtenerRespuesta();
-            if (!respuesta) { alert('Por favor completa tu respuesta antes de verificar'); return; }
+            if (!respuesta) {
+                const msg = (typeof getMensajeIncompleto === 'function') ? getMensajeIncompleto() : 'Por favor completa tu respuesta antes de verificar';
+                alert(msg);
+                return;
+            }
             btnVerificar.disabled = true;
             btnVerificar.classList.add('opacity-50', 'cursor-not-allowed');
             btnVerificar.innerHTML = '<span>Verificando...</span>';
@@ -242,10 +253,10 @@
             btnVerificar.classList.add('opacity-50', 'cursor-not-allowed');
             if (data.correcta) {
                 resultado.className = 'mt-4 p-4 rounded-2xl bg-green-50 dark:bg-green-900/20 border-2 border-green-500 dark:border-green-600';
-                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-green-800 dark:text-green-200 text-lg mb-2">¡Correcto!</h4><p class="text-sm text-green-700 dark:text-green-300 leading-snug mb-2">' + data.explicacion + '</p>' + (data.imagen_respuesta ? '<div class="mt-4 flex justify-center"><img src="/storage/' + data.imagen_respuesta + '" alt="Solución" class="max-w-full rounded-xl shadow-md"></div>' : '') + '</div></div>';
+                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-green-800 dark:text-green-200 text-lg mb-2">¡Correcto!</h4><p class="text-sm text-green-700 dark:text-green-300 leading-snug mb-2">' + escapeHtml(data.explicacion) + '</p>' + (data.imagen_respuesta ? '<div class="mt-4 flex justify-center"><img src="/storage/' + escapeHtml(data.imagen_respuesta) + '" alt="Solución" class="max-w-full rounded-xl shadow-md"></div>' : '') + '</div></div>';
             } else {
                 resultado.className = 'mt-4 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border-2 border-red-500 dark:border-red-600';
-                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-red-800 dark:text-red-200 text-lg mb-2">Incorrecto</h4><p class="text-sm text-red-700 dark:text-red-300 leading-snug mb-2">' + data.explicacion + '</p>' + (data.imagen_respuesta ? '<div class="mt-4 flex justify-center"><img src="/storage/' + data.imagen_respuesta + '" alt="Solución" class="max-w-full rounded-xl shadow-md"></div>' : '') + (data.respuesta_correcta_visual ? '<div class="mt-4 p-4 bg-white dark:bg-neutral-800 rounded-xl border border-red-200 dark:border-red-800"><p class="font-semibold text-red-800 dark:text-red-200 mb-2">Respuesta correcta:</p><p class="text-red-700 dark:text-red-300">' + data.respuesta_correcta_visual + '</p></div>' : '') + '</div></div>';
+                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-red-800 dark:text-red-200 text-lg mb-2">Incorrecto</h4><p class="text-sm text-red-700 dark:text-red-300 leading-snug mb-2">' + escapeHtml(data.explicacion) + '</p>' + (data.imagen_respuesta ? '<div class="mt-4 flex justify-center"><img src="/storage/' + escapeHtml(data.imagen_respuesta) + '" alt="Solución" class="max-w-full rounded-xl shadow-md"></div>' : '') + (data.respuesta_correcta_visual ? '<div class="mt-4 p-4 bg-white dark:bg-neutral-800 rounded-xl border border-red-200 dark:border-red-800"><p class="font-semibold text-red-800 dark:text-red-200 mb-2">Respuesta correcta:</p><p class="text-red-700 dark:text-red-300">' + escapeHtml(data.respuesta_correcta_visual) + '</p></div>' : '') + '</div></div>';
             }
             resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }

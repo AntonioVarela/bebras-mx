@@ -29,17 +29,18 @@ class PreguntaController extends Controller
 
     public function show($id)
     {
+        $id = (int) $id;
         $pregunta = Pregunta::findOrFail($id);
-        
+
         // Verificar si el alumno puede ver esta pregunta
         if (auth()->check() && auth()->user()->isAlumno() && !$pregunta->activa) {
             abort(403, 'Esta pregunta no está disponible en este momento.');
         }
-        
+
         // Verificar si ya respondió
         $progresoUsuario = null;
         $yaRespondio = false;
-        
+
         if (auth()->check()) {
             $progresoUsuario = ProgresoUsuario::where('user_id', auth()->id())
                 ->where('pregunta_id', $id)
@@ -53,8 +54,9 @@ class PreguntaController extends Controller
 
     public function verificar(Request $request, $id)
     {
+        $id = (int) $id;
         $pregunta = Pregunta::findOrFail($id);
-        
+
         if (!auth()->check()) {
             return response()->json([
                 'error' => true,
@@ -73,7 +75,13 @@ class PreguntaController extends Controller
                 'mensaje' => 'Ya respondiste esta pregunta anteriormente.'
             ], 403);
         }
-        
+
+        $request->validate([
+            'respuesta' => ['present'],
+        ], [
+            'respuesta.present' => 'Debes enviar una respuesta.',
+        ]);
+
         $respuestaUsuario = $request->input('respuesta');
         $respuestaCorrecta = $pregunta->respuesta_correcta;
         $configuracion = $pregunta->configuracion ?? [];
@@ -104,6 +112,12 @@ class PreguntaController extends Controller
         ]);
     }
 
+    /**
+     * Valida la respuesta del usuario contra la respuesta correcta.
+     * Convención: en las vistas, cada inciso usa el campo 'id' de la opción (ej. 'A', 'B', '1', 'manzana').
+     * El front envía ese mismo 'id' (seleccion_simple: [id], seleccion_multiple: [id1, id2], etc.).
+     * respuesta_correcta en BD debe usar exactamente los mismos ids que configuracion.opciones[].id.
+     */
     private function validarRespuesta($tipo, $usuario, $correcta, $configuracion = [])
     {
         if (!$usuario || empty($tipo)) {
@@ -145,7 +159,7 @@ class PreguntaController extends Controller
                 return $this->validarTejerAlfombra($usuario, $correcta);
 
             case 'completar':
-                return $this->validarCompletar($usuario, $correcta);
+                return $this->validarCompletar($usuario, $correcta, $configuracion);
 
             default:
                 return false;
@@ -629,7 +643,7 @@ class PreguntaController extends Controller
         return true;
     }
 
-    private function validarCompletar($usuario, $correcta)
+    private function validarCompletar($usuario, $correcta, $configuracion = [])
     {
         if (!$usuario || !$correcta) {
             return false;
@@ -649,11 +663,17 @@ class PreguntaController extends Controller
             return false;
         }
 
-        // Respuesta como array de ids en orden (ej: ['planta_recta', 'tallo_curvo', 'flor', 'trazos'])
+        // Respuesta como array de ids (orden importa salvo que config indique comparar como conjunto)
         if (isset($correcta[0]) && is_string($correcta[0])) {
             $usuarioFlat = is_array($usuario) ? $usuario : [$usuario];
             if (count($usuarioFlat) !== count($correcta)) {
                 return false;
+            }
+            if (!empty($configuracion['comparar_como_conjunto'])) {
+                sort($usuarioFlat);
+                $correctaSorted = $correcta;
+                sort($correctaSorted);
+                return $usuarioFlat === $correctaSorted;
             }
             return $usuarioFlat === $correcta;
         }
@@ -764,6 +784,9 @@ class PreguntaController extends Controller
                 return 'Revisa la explicación para ver la solución completa del grid.';
 
             case 'completar':
+                if (is_array($correcta) && isset($correcta[0]) && is_string($correcta[0]) && array_is_list($correcta)) {
+                    return 'Opciones correctas: ' . implode(', ', $correcta);
+                }
                 return 'Revisa la explicación para ver la solución completa.';
 
             default:

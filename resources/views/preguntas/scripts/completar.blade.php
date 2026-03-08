@@ -74,6 +74,30 @@
         return null;
     }
 
+    function getMensajeIncompleto() {
+        const todosDias = document.querySelectorAll('.completar-dia');
+        if (todosDias.length > 0) {
+            const diasUnicos = [...new Set([...todosDias].map(c => c.dataset.dia))];
+            const faltan = diasUnicos.filter(d => !document.querySelectorAll('.completar-dia[data-dia="' + d + '"]:checked').length);
+            if (faltan.length) return 'Selecciona al menos una opción en cada día antes de verificar.';
+        }
+        if (document.querySelectorAll('.completar-zanco').length > 0)
+            return 'Asigna un zanco a cada castor antes de verificar.';
+        if (document.querySelectorAll('.completar-slot').length > 0)
+            return 'Selecciona una opción en cada casilla antes de verificar.';
+        if (document.querySelectorAll('.completar-blank').length > 0)
+            return 'Completa todas las casillas numeradas antes de verificar.';
+        const strInput = document.getElementById('completar-string');
+        if (strInput)
+            return 'Escribe tu respuesta antes de verificar.';
+        const destino = document.getElementById('completar-destino');
+        if (destino)
+            return 'Arrastra los elementos al área de orden antes de verificar.';
+        if (document.querySelectorAll('.completar-checkbox').length > 0)
+            return 'Marca al menos una opción antes de verificar.';
+        return 'Por favor completa tu respuesta antes de verificar.';
+    }
+
     function deshabilitarInteraccion() {
         document.querySelectorAll('.completar-dia, .completar-zanco, .completar-slot, .completar-blank, .completar-checkbox').forEach(el => {
             el.disabled = true;
