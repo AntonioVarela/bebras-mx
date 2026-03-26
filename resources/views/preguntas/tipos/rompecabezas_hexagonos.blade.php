@@ -10,9 +10,12 @@
 @endphp
 
 <div class="rompecabezas-hexagonos-container">
-    {{-- Instrucciones --}}
-    <div class="bg-blue-50 border-l-4 border-blue-500 p-2 rounded mb-2 text-xs text-blue-800">
-        <strong>Instrucciones:</strong> Arrastra las piezas hexagonales al rompecabezas. Cada triángulo formado (pieza nueva + 2 de abajo) debe tener todas las piezas del mismo color O todas de colores diferentes.
+    {{-- Instrucciones (se muestra la correcta según dispositivo vía JS) --}}
+    <div class="instrucciones-arrastre-rp bg-blue-50 border-l-4 border-blue-500 p-2 rounded mb-2 text-xs text-blue-800">
+        <strong>Instrucciones:</strong> Arrastra las piezas hexagonales al rompecabezas. Haz clic en una pieza colocada para rotarla. Doble clic para removerla. Cada triángulo formado (pieza nueva + 2 de abajo) debe tener todas las piezas del mismo color O todas de colores diferentes.
+    </div>
+    <div class="instrucciones-toque-rp bg-blue-50 border-l-4 border-blue-500 p-2 rounded mb-2 text-xs text-blue-800" style="display:none">
+        <strong>Instrucciones:</strong> Toca una pieza para seleccionarla, luego toca la celda donde colocarla. Toca una celda ocupada (sin pieza seleccionada) para removerla. Toca la celda con una pieza ya seleccionada para rotarla.
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -26,7 +29,7 @@
             </h4>
             <div id="piezas-disponibles" class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2 min-h-[200px] space-y-2 max-h-[400px] overflow-y-auto">
                 @foreach($piezasMezcladas as $pieza)
-                    <div class="pieza-item bg-white border-2 border-gray-300 rounded-lg p-2 cursor-move hover:shadow-lg transition-shadow"
+                    <div class="pieza-item bg-white border-2 border-gray-300 rounded-lg p-2 cursor-move hover:shadow-lg transition-shadow touch-manipulation"
                          data-pieza-id="{{ $pieza['id'] }}"
                          data-color="{{ $pieza['color'] }}"
                          data-imagen="{{ $pieza['imagen'] ?? '' }}"
@@ -113,10 +116,22 @@
 <style>
     .pieza-item {
         user-select: none;
+        touch-action: manipulation;
     }
-    
+
     .pieza-item.dragging {
         opacity: 0.5;
+    }
+
+    /* Pieza seleccionada en modo táctil */
+    .pieza-item.pieza-toque-activa {
+        border-color: #ec4899 !important;
+        background-color: #fdf2f8;
+        box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.45);
+    }
+
+    .celda-hexagono {
+        touch-action: manipulation;
     }
     
     /* Forma hexagonal para piezas y celdas del rompecabezas - responsive */

@@ -30,7 +30,7 @@
                 @endphp
                 <button 
                     type="button"
-                    class="color-btn px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-md border-2 {{ $colorDisplay['clase'] }} {{ $colorDisplay['hover'] }} {{ $colorDisplay['border'] }}"
+                    class="color-btn px-4 py-2 min-h-[44px] rounded-lg text-sm font-semibold text-white transition-all shadow-md border-2 touch-manipulation {{ $colorDisplay['clase'] }} {{ $colorDisplay['hover'] }} {{ $colorDisplay['border'] }}"
                     data-color="{{ $colorNombre }}"
                     onclick="seleccionarColor('{{ $colorNombre }}')">
                     {{ $colorDisplay['nombre'] }}
@@ -52,7 +52,7 @@
         {{-- Lista de áreas para colorear --}}
         <div class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             @foreach($areas as $area)
-                <div class="area-item bg-white dark:bg-neutral-800 border-2 border-gray-300 dark:border-neutral-600 rounded-lg p-3 min-h-[44px] hover:border-blue-500 dark:hover:border-blue-400 transition-all cursor-pointer flex items-center"
+                <div class="area-item bg-white dark:bg-neutral-800 border-2 border-gray-300 dark:border-neutral-600 rounded-lg p-3 min-h-[44px] hover:border-blue-500 dark:hover:border-blue-400 transition-all cursor-pointer flex items-center touch-manipulation"
                      data-area-id="{{ $area['id'] }}"
                      onclick="seleccionarArea('{{ $area['id'] }}')">
                     <div class="flex items-center justify-between gap-2">

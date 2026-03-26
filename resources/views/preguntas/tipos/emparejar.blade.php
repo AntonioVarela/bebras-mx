@@ -11,7 +11,7 @@
                          class="w-12 h-12 object-contain flex-shrink-0">
                     <span class="text-sm font-medium flex-1 min-w-0 truncate">{{ $objeto['nombre'] }}</span>
                     <select 
-                        class="emparejamiento ml-auto flex-shrink-0 h-9 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-lg px-3 py-1.5 text-sm text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all"
+                        class="emparejamiento ml-auto flex-shrink-0 min-h-[44px] border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-lg px-3 py-1.5 text-sm text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all touch-manipulation"
                         data-objeto="{{ $objeto['id'] }}">
                         <option value="">Selecciona...</option>
                         @foreach($pregunta->configuracion['destinos'] as $destino)

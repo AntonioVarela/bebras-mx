@@ -9,9 +9,12 @@
 @endphp
 
 <div class="colocar-piezas-container">
-    {{-- Instrucciones --}}
-    <div class="bg-blue-50 border-l-4 border-blue-500 p-2 rounded mb-2 text-xs text-blue-800">
-        <strong>Instrucciones:</strong> Arrastra cada abeja desde la lista y colócala en la celda del panal según su regla.
+    {{-- Instrucciones (se muestra la correcta según dispositivo vía JS) --}}
+    <div class="instrucciones-arrastre bg-blue-50 border-l-4 border-blue-500 p-2 rounded mb-2 text-xs text-blue-800">
+        <strong>Instrucciones:</strong> Arrastra cada abeja desde la lista y colócala en la celda del panal según su regla. Doble clic en una celda ocupada para remover.
+    </div>
+    <div class="instrucciones-toque bg-blue-50 border-l-4 border-blue-500 p-2 rounded mb-2 text-xs text-blue-800" style="display:none">
+        <strong>Instrucciones:</strong> Toca una abeja para seleccionarla (se resaltará), luego toca la celda del panal donde quieres colocarla. Toca una celda ocupada (sin abeja seleccionada) para removerla.
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -25,7 +28,7 @@
             </h4>
             <div id="abejas-disponibles" class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2 min-h-[200px] space-y-2 max-h-[400px] overflow-y-auto">
                 @foreach($abejasMezcladas as $abeja)
-                    <div class="abeja-item bg-white border-2 border-gray-300 rounded-lg p-2 cursor-move hover:shadow-lg transition-shadow"
+                    <div class="abeja-item bg-white border-2 border-gray-300 rounded-lg p-2 cursor-move hover:shadow-lg transition-shadow touch-manipulation"
                          data-abeja-id="{{ $abeja['id'] }}"
                          draggable="true">
                         <div class="flex items-center gap-2">
@@ -110,22 +113,32 @@
 <style>
     .abeja-item {
         user-select: none;
+        touch-action: manipulation;
     }
-    
+
     .abeja-item.dragging {
         opacity: 0.5;
     }
-    
+
+    /* Abeja seleccionada en modo táctil */
+    .abeja-item.abeja-toque-activa {
+        border-color: #ec4899 !important;
+        background-color: #fdf2f8;
+        box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.45);
+    }
+
     .celda-panal {
         position: relative;
+        touch-action: manipulation;
     }
-    
+
     /* Forma hexagonal para las celdas del panal y las abejas dentro - responsive */
     .celda-panal,
     .celda-panal .abeja-en-celda {
         width: 2.5rem;
         height: 2.5rem;
     }
+
     @media (min-width: 640px) {
         .celda-panal,
         .celda-panal .abeja-en-celda {
@@ -133,33 +146,42 @@
             height: 3rem;
         }
     }
+
     @media (min-width: 768px) {
         .celda-panal,
         .celda-panal .abeja-en-celda {
             width: 4rem;
             height: 4rem;
-        clip-path: polygon(
-            25% 3%, 75% 3%,
-            97% 50%,
-            75% 97%, 25% 97%,
-            3% 50%
-        );
+            clip-path: polygon(
+                25% 3%, 75% 3%,
+                97% 50%,
+                75% 97%, 25% 97%,
+                3% 50%
+            );
+        }
     }
-    
+
     .celda-panal.ocupada {
         background-color: #fef3c7;
         border-color: #f59e0b;
     }
-    
+
     .celda-panal.drag-over {
         background-color: #dbeafe;
         border-color: #3b82f6;
         transform: scale(1.05);
     }
-    
+
     .celda-panal:hover:not(.ocupada) {
         background-color: #e0e7ff;
         border-color: #6366f1;
+    }
+
+    /* Botón × siempre visible en dispositivos táctiles (hover no aplica en touch) */
+    @media (hover: none) {
+        .celda-panal .abeja-en-celda button {
+            opacity: 1 !important;
+        }
     }
 
     /* Rotar ligeramente el panal compacto de 7 celdas para asemejar la imagen de solución */

@@ -14,90 +14,136 @@
     function inicializarDragAndDrop() {
         const piezasDisponiblesEl = document.getElementById('piezas-disponibles');
         const celdasRompecabezas = document.querySelectorAll('.celda-hexagono[data-fija="false"]');
+        const esTactil = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
-        // Configurar elementos arrastrables (piezas)
-        piezasDisponiblesEl.querySelectorAll('.pieza-item').forEach(pieza => {
-            pieza.addEventListener('dragstart', function(e) {
-                e.dataTransfer.setData('text/plain', JSON.stringify({
-                    id: this.dataset.piezaId,
-                    color: this.dataset.color,
-                    imagen: this.dataset.imagen || ''
-                }));
-                this.classList.add('dragging');
-            });
+        // Drag-and-drop solo en dispositivos con mouse
+        if (!esTactil) {
+            piezasDisponiblesEl.querySelectorAll('.pieza-item').forEach(pieza => {
+                pieza.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        id: this.dataset.piezaId,
+                        color: this.dataset.color,
+                        imagen: this.dataset.imagen || ''
+                    }));
+                    this.classList.add('dragging');
+                });
 
-            pieza.addEventListener('dragend', function(e) {
-                this.classList.remove('dragging');
-                document.querySelectorAll('.celda-hexagono').forEach(celda => {
-                    celda.classList.remove('drag-over');
+                pieza.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    document.querySelectorAll('.celda-hexagono').forEach(celda => {
+                        celda.classList.remove('drag-over');
+                    });
                 });
             });
-        });
 
-        // Configurar zonas de destino (celdas del rompecabezas)
-        celdasRompecabezas.forEach(celda => {
-            celda.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                if (!this.classList.contains('ocupada') && this.dataset.fija !== 'true') {
-                    this.classList.add('drag-over');
-                }
+            celdasRompecabezas.forEach(celda => {
+                celda.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (!this.classList.contains('ocupada') && this.dataset.fija !== 'true') {
+                        this.classList.add('drag-over');
+                    }
+                });
+
+                celda.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
+
+                celda.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    const piezaData = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    if (!piezaData || !piezaData.id) return;
+                    if (this.classList.contains('ocupada')) {
+                        mostrarMensaje('Esta celda ya está ocupada. Remueve la pieza primero.', 'warning');
+                        return;
+                    }
+                    const fila = parseInt(this.dataset.fila);
+                    const columna = parseInt(this.dataset.columna);
+                    if (!validarTriangulo(fila, columna, piezaData.color)) {
+                        mostrarMensaje('Esta colocación no cumple la regla del triángulo. Todas las piezas deben ser del mismo color O todas de colores diferentes.', 'warning');
+                        return;
+                    }
+                    const celdaAnterior = encontrarCeldaConPieza(piezaData.id);
+                    if (celdaAnterior) removerPiezaDeCelda(celdaAnterior);
+                    colocarPiezaEnCelda(this, piezaData);
+                });
+
+                // Doble clic para remover (escritorio)
+                celda.addEventListener('dblclick', function(e) {
+                    if (this.classList.contains('ocupada')) removerPiezaDeCelda(this);
+                });
+
+                // Click para rotar pieza ya colocada (escritorio)
+                celda.addEventListener('click', function(e) {
+                    if (this.classList.contains('ocupada') && this.dataset.fija !== 'true') {
+                        rotarPiezaEnCelda(this);
+                    }
+                });
+            });
+        }
+
+        // Soporte táctil: toca una pieza para seleccionarla, toca la celda para colocarla
+        // (iOS/iPadOS no soporta la API HTML5 de drag-and-drop)
+        if (esTactil) {
+            window._piezaSeleccionadaToque = null;
+
+            // Mostrar instrucciones táctiles
+            const instrucciones = document.querySelector('.instrucciones-arrastre-rp');
+            const instruccionesToque = document.querySelector('.instrucciones-toque-rp');
+            if (instrucciones) instrucciones.style.display = 'none';
+            if (instruccionesToque) instruccionesToque.style.display = 'block';
+
+            piezasDisponiblesEl.querySelectorAll('.pieza-item').forEach(pieza => {
+                pieza.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    if (this.style.display === 'none') return;
+                    const id = this.dataset.piezaId;
+                    if (window._piezaSeleccionadaToque === id) {
+                        window._piezaSeleccionadaToque = null;
+                        this.classList.remove('pieza-toque-activa');
+                    } else {
+                        document.querySelectorAll('.pieza-item.pieza-toque-activa').forEach(el => el.classList.remove('pieza-toque-activa'));
+                        window._piezaSeleccionadaToque = id;
+                        this.classList.add('pieza-toque-activa');
+                        mostrarMensaje('Pieza ' + id + ' seleccionada. Toca una celda del rompecabezas para colocarla.', 'info');
+                    }
+                });
             });
 
-            celda.addEventListener('dragleave', function(e) {
-                this.classList.remove('drag-over');
+            celdasRompecabezas.forEach(celda => {
+                celda.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    if (window._piezaSeleccionadaToque) {
+                        const id = window._piezaSeleccionadaToque;
+                        if (this.classList.contains('ocupada')) {
+                            // Tap en celda ocupada con pieza seleccionada → rotar
+                            if (this.dataset.fija !== 'true') rotarPiezaEnCelda(this);
+                            return;
+                        }
+                        const fila = parseInt(this.dataset.fila);
+                        const columna = parseInt(this.dataset.columna);
+                        const piezaEl = document.querySelector(`[data-pieza-id="${id}"]`);
+                        const color = piezaEl ? piezaEl.dataset.color : '';
+                        if (!validarTriangulo(fila, columna, color)) {
+                            mostrarMensaje('Esta colocación no cumple la regla del triángulo.', 'warning');
+                            return;
+                        }
+                        const anterior = encontrarCeldaConPieza(id);
+                        if (anterior) removerPiezaDeCelda(anterior);
+                        colocarPiezaEnCelda(this, {
+                            id: id,
+                            color: color,
+                            imagen: piezaEl ? (piezaEl.dataset.imagen || '') : ''
+                        });
+                        document.querySelectorAll('.pieza-item.pieza-toque-activa').forEach(el => el.classList.remove('pieza-toque-activa'));
+                        window._piezaSeleccionadaToque = null;
+                    } else if (this.classList.contains('ocupada') && this.dataset.fija !== 'true') {
+                        // Tap en celda ocupada sin selección → remover
+                        removerPiezaDeCelda(this);
+                    }
+                });
             });
-
-            celda.addEventListener('drop', function(e) {
-                e.preventDefault();
-                this.classList.remove('drag-over');
-
-                const piezaData = JSON.parse(e.dataTransfer.getData('text/plain'));
-                
-                if (!piezaData || !piezaData.id) return;
-
-                // Verificar si la celda ya está ocupada
-                if (this.classList.contains('ocupada')) {
-                    mostrarMensaje('Esta celda ya está ocupada. Remueve la pieza primero.', 'warning');
-                    return;
-                }
-
-                // Validar regla del triángulo antes de colocar
-                const fila = parseInt(this.dataset.fila);
-                const columna = parseInt(this.dataset.columna);
-                
-                if (!validarTriangulo(fila, columna, piezaData.color)) {
-                    mostrarMensaje('Esta colocación no cumple la regla del triángulo. Todas las piezas deben ser del mismo color O todas de colores diferentes.', 'warning');
-                    return;
-                }
-
-                // Verificar si la pieza ya está colocada en otra celda
-                const celdaAnterior = encontrarCeldaConPieza(piezaData.id);
-                if (celdaAnterior) {
-                    removerPiezaDeCelda(celdaAnterior);
-                }
-
-                // Colocar pieza en la nueva celda
-                colocarPiezaEnCelda(this, piezaData);
-            });
-
-            // Permitir doble clic para remover pieza
-            celda.addEventListener('dblclick', function(e) {
-                if (this.classList.contains('ocupada')) {
-                    removerPiezaDeCelda(this);
-                }
-            });
-
-            // Click simple para rotar pieza ya colocada
-            celda.addEventListener('click', function(e) {
-                if (!this.classList.contains('ocupada')) {
-                    return;
-                }
-                if (this.dataset.fija === 'true') {
-                    return;
-                }
-                rotarPiezaEnCelda(this);
-            });
-        });
+        }
     }
 
     function rotarPiezaEnCelda(celda) {

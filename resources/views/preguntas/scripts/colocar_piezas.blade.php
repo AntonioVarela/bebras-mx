@@ -13,68 +13,108 @@
     function inicializarDragAndDrop() {
         const abejasDisponibles = document.getElementById('abejas-disponibles');
         const celdasPanal = document.querySelectorAll('.celda-panal');
+        const esTactil = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
-        // Configurar elementos arrastrables (abejas)
-        abejasDisponibles.querySelectorAll('.abeja-item').forEach(abeja => {
-            abeja.addEventListener('dragstart', function(e) {
-                e.dataTransfer.setData('text/plain', this.dataset.abejaId);
-                this.classList.add('dragging');
-            });
+        // Configurar elementos arrastrables (abejas) — solo en dispositivos con mouse
+        if (!esTactil) {
+            abejasDisponibles.querySelectorAll('.abeja-item').forEach(abeja => {
+                abeja.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.dataset.abejaId);
+                    this.classList.add('dragging');
+                });
 
-            abeja.addEventListener('dragend', function(e) {
-                this.classList.remove('dragging');
-                // Remover clases de drag-over de todas las celdas
-                document.querySelectorAll('.celda-panal').forEach(celda => {
-                    celda.classList.remove('drag-over');
+                abeja.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    document.querySelectorAll('.celda-panal').forEach(celda => {
+                        celda.classList.remove('drag-over');
+                    });
                 });
             });
-        });
 
-        // Configurar zonas de destino (celdas del panal)
-        celdasPanal.forEach(celda => {
-            celda.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                if (!this.classList.contains('ocupada')) {
-                    this.classList.add('drag-over');
-                }
+            // Configurar zonas de destino (celdas del panal)
+            celdasPanal.forEach(celda => {
+                celda.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (!this.classList.contains('ocupada')) {
+                        this.classList.add('drag-over');
+                    }
+                });
+
+                celda.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
+
+                celda.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    const abejaId = e.dataTransfer.getData('text/plain');
+                    if (!abejaId) return;
+                    if (this.classList.contains('ocupada')) {
+                        mostrarMensaje('Esta celda ya está ocupada. Remueve la abeja primero.', 'warning');
+                        return;
+                    }
+                    const celdaAnterior = encontrarCeldaConAbeja(abejaId);
+                    if (celdaAnterior) removerAbejaDeCelda(celdaAnterior);
+                    colocarAbejaEnCelda(this, abejaId);
+                });
+
+                // Doble clic para remover abeja (escritorio)
+                celda.addEventListener('dblclick', function(e) {
+                    if (this.classList.contains('ocupada')) {
+                        removerAbejaDeCelda(this);
+                    }
+                });
+            });
+        }
+
+        // Soporte táctil: toca una abeja para seleccionarla, toca la celda para colocarla
+        // (iOS/iPadOS no soporta la API HTML5 de drag-and-drop)
+        if (esTactil) {
+            window._abejaSeleccionadaToque = null;
+
+            // Mostrar instrucciones táctiles y ocultar las de arrastre
+            const instrucciones = document.querySelector('.instrucciones-arrastre');
+            const instruccionesToque = document.querySelector('.instrucciones-toque');
+            if (instrucciones) instrucciones.style.display = 'none';
+            if (instruccionesToque) instruccionesToque.style.display = 'block';
+
+            abejasDisponibles.querySelectorAll('.abeja-item').forEach(abeja => {
+                abeja.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    if (this.style.display === 'none') return;
+                    const id = this.dataset.abejaId;
+                    if (window._abejaSeleccionadaToque === id) {
+                        window._abejaSeleccionadaToque = null;
+                        this.classList.remove('abeja-toque-activa');
+                    } else {
+                        document.querySelectorAll('.abeja-item.abeja-toque-activa').forEach(el => el.classList.remove('abeja-toque-activa'));
+                        window._abejaSeleccionadaToque = id;
+                        this.classList.add('abeja-toque-activa');
+                        mostrarMensaje('Abeja ' + id + ' seleccionada. Toca una celda del panal para colocarla.', 'info');
+                    }
+                });
             });
 
-            celda.addEventListener('dragleave', function(e) {
-                this.classList.remove('drag-over');
+            celdasPanal.forEach(celda => {
+                celda.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    if (window._abejaSeleccionadaToque) {
+                        const id = window._abejaSeleccionadaToque;
+                        if (this.classList.contains('ocupada')) {
+                            mostrarMensaje('Esta celda ya está ocupada. Toca la celda sin abeja seleccionada para removerla.', 'warning');
+                            return;
+                        }
+                        const anterior = encontrarCeldaConAbeja(id);
+                        if (anterior) removerAbejaDeCelda(anterior);
+                        colocarAbejaEnCelda(this, id);
+                        document.querySelectorAll('.abeja-item.abeja-toque-activa').forEach(el => el.classList.remove('abeja-toque-activa'));
+                        window._abejaSeleccionadaToque = null;
+                    } else if (this.classList.contains('ocupada')) {
+                        removerAbejaDeCelda(this);
+                    }
+                });
             });
-
-            celda.addEventListener('drop', function(e) {
-                e.preventDefault();
-                this.classList.remove('drag-over');
-
-                const abejaId = e.dataTransfer.getData('text/plain');
-                
-                if (!abejaId) return;
-
-                // Verificar si la celda ya está ocupada
-                if (this.classList.contains('ocupada')) {
-                    mostrarMensaje('Esta celda ya está ocupada. Remueve la abeja primero.', 'warning');
-                    return;
-                }
-
-                // Verificar si la abeja ya está colocada en otra celda
-                const celdaAnterior = encontrarCeldaConAbeja(abejaId);
-                if (celdaAnterior) {
-                    // Remover de la celda anterior
-                    removerAbejaDeCelda(celdaAnterior);
-                }
-
-                // Colocar abeja en la nueva celda
-                colocarAbejaEnCelda(this, abejaId);
-            });
-
-            // Permitir hacer doble clic para remover abeja
-            celda.addEventListener('dblclick', function(e) {
-                if (this.classList.contains('ocupada')) {
-                    removerAbejaDeCelda(this);
-                }
-            });
-        });
+        }
     }
 
     function colocarAbejaEnCelda(celda, abejaId) {

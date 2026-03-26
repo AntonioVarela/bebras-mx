@@ -20,7 +20,7 @@
         </h4>
         <div id="elementos-fuente" class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2 min-h-[150px] max-h-[300px] overflow-y-auto">
             @foreach($elementosMezclados as $elemento)
-                <div class="elemento-draggable bg-white border-2 border-gray-300 rounded-lg p-2 mb-1 cursor-move hover:shadow-lg transition-shadow"
+                <div class="elemento-draggable bg-white border-2 border-gray-300 rounded-lg p-2 mb-1 cursor-move hover:shadow-lg transition-shadow touch-manipulation"
                      data-id="{{ $elemento['id'] }}">
                     @if(isset($elemento['imagen']))
                         <img src="{{ asset('storage/' . $elemento['imagen']) }}" alt="{{ $elemento['id'] }}" class="full w-auto h-12 object-contain">
