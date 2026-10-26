@@ -64,17 +64,39 @@
             }
         }
 
-        Sortable.create(fuente, {
-            group: { name: 'shared', pull: true, put: true },
+        // Detectar si es dispositivo touch
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        
+        // Configuración común para ambos contenedores
+        const sortableConfig = {
             animation: 150,
+            forceFallback: true,
+            fallbackTolerance: 5,
+            // En touch, delay para distinguir scroll de drag
+            delay: isTouchDevice ? 150 : 0,
+            delayOnTouchOnly: true,
+            // Permitir scroll mientras se arrastra
+            scrollSensitivity: 60,
+            scrollSpeed: 15,
+            bubbleScroll: true,
+            // Clase para el elemento siendo arrastrado
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            // Solo iniciar drag desde el elemento, no desde el contenedor
+            draggable: '.elemento-draggable'
+        };
+
+        Sortable.create(fuente, {
+            ...sortableConfig,
+            group: { name: 'shared', pull: true, put: true },
             sort: false,
             onAdd: actualizarOrden,
             onRemove: actualizarOrden
         });
 
         Sortable.create(destino, {
+            ...sortableConfig,
             group: 'shared',
-            animation: 150,
             onAdd: function(evt) {
                 document.getElementById('placeholder-orden').style.display = 'none';
                 actualizarOrden();
