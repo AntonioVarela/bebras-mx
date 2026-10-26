@@ -12,11 +12,17 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Optimización: solo cargar relaciones necesarias y seleccionar campos específicos
         $alumnos = User::where('role', 'alumno')
-            ->with(['progresos.pregunta'])
+            ->select('id', 'name', 'email', 'created_at')
+            ->with(['progresos' => function($query) {
+                $query->select('id', 'user_id', 'pregunta_id', 'es_correcta', 'completada_at');
+            }])
             ->get();
         
-        $preguntas = Pregunta::orderBy('numero')->get();
+        $preguntas = Pregunta::select('id', 'numero', 'titulo', 'activa')
+            ->orderBy('numero')
+            ->get();
         
         return view('admin.dashboard', compact('alumnos', 'preguntas'));
     }
@@ -38,7 +44,13 @@ class DashboardController extends Controller
     public function verProgreso($userId)
     {
         $userId = (int) $userId;
-        $alumno = User::with(['progresos.pregunta'])->findOrFail($userId);
+        
+        // Optimización: cargar solo campos necesarios
+        $alumno = User::select('id', 'name', 'email', 'role', 'created_at')
+            ->with(['progresos' => function($query) {
+                $query->select('id', 'user_id', 'pregunta_id', 'respuesta_usuario', 'es_correcta', 'completada_at');
+            }])
+            ->findOrFail($userId);
 
         if (! $alumno->isAlumno()) {
             abort(404, 'No se encontró el progreso del alumno.');
@@ -46,13 +58,18 @@ class DashboardController extends Controller
 
         $preguntas = Pregunta::orderBy('numero')->get();
         
+        // Optimización: crear un mapa de progreso indexado por pregunta_id para acceso O(1)
+        $mapaProgreso = [];
+        foreach ($alumno->progresos as $progresoItem) {
+            $mapaProgreso[$progresoItem->pregunta_id] = $progresoItem;
+        }
+        
         // Crear array de progreso
         $progreso = [];
         foreach ($preguntas as $pregunta) {
-            $progresoItem = $alumno->progresos->where('pregunta_id', $pregunta->id)->first();
             $progreso[$pregunta->id] = [
                 'pregunta' => $pregunta,
-                'progreso' => $progresoItem,
+                'progreso' => $mapaProgreso[$pregunta->id] ?? null,
             ];
         }
         

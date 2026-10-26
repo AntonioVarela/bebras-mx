@@ -10,14 +10,21 @@ class PreguntaController extends Controller
 {
     public function index()
     {
+        // Optimización: solo cargar campos necesarios para el listado
         if (auth()->check() && auth()->user()->isAlumno()) {
-            $preguntas = Pregunta::activas()->orderBy('numero')->get();
+            $preguntas = Pregunta::activas()
+                ->select('id', 'numero', 'titulo', 'nivel', 'dificultad')
+                ->orderBy('numero')
+                ->get();
         } else {
             // Admin ve todas
-            $preguntas = Pregunta::orderBy('numero')->get();
+            $preguntas = Pregunta::select('id', 'numero', 'titulo', 'nivel', 'dificultad', 'activa')
+                ->orderBy('numero')
+                ->get();
         }
         
         if (auth()->check()) {
+            // Optimización: usar índice compuesto user_id + pregunta_id
             $progreso = ProgresoUsuario::where('user_id', auth()->id())
                 ->pluck('es_correcta', 'pregunta_id');
         } else {
@@ -55,8 +62,7 @@ class PreguntaController extends Controller
     public function verificar(Request $request, $id)
     {
         $id = (int) $id;
-        $pregunta = Pregunta::findOrFail($id);
-
+        
         if (!auth()->check()) {
             return response()->json([
                 'error' => true,
@@ -64,10 +70,10 @@ class PreguntaController extends Controller
             ], 401);
         }
         
-        // Verificar si ya respondió
+        // Verificar si ya respondió (una sola consulta)
         $progresoExistente = ProgresoUsuario::where('user_id', auth()->id())
             ->where('pregunta_id', $id)
-            ->first();
+            ->exists();
         
         if ($progresoExistente && auth()->user()->isAlumno()) {
             return response()->json([
@@ -82,6 +88,8 @@ class PreguntaController extends Controller
             'respuesta.present' => 'Debes enviar una respuesta.',
         ]);
 
+        // Cargar pregunta solo después de validaciones iniciales
+        $pregunta = Pregunta::findOrFail($id);
         $respuestaUsuario = $request->input('respuesta');
         $respuestaCorrecta = $pregunta->respuesta_correcta;
         $configuracion = $pregunta->configuracion ?? [];
@@ -94,15 +102,13 @@ class PreguntaController extends Controller
         );
         
         // Guardar progreso
-        if (auth()->check()) {
-            ProgresoUsuario::create([
-                'user_id' => auth()->id(),
-                'pregunta_id' => $id,
-                'respuesta_usuario' => $respuestaUsuario,
-                'es_correcta' => $esCorrecta,
-                'completada_at' => now(),
-            ]);
-        }
+        ProgresoUsuario::create([
+            'user_id' => auth()->id(),
+            'pregunta_id' => $id,
+            'respuesta_usuario' => $respuestaUsuario,
+            'es_correcta' => $esCorrecta,
+            'completada_at' => now(),
+        ]);
         
         return response()->json([
             'correcta' => $esCorrecta,
@@ -182,21 +188,25 @@ class PreguntaController extends Controller
                 return false;
             }
             
+            // Optimización: usar un mapa hash para O(n) en lugar de O(n²)
+            $mapaUsuario = [];
+            foreach ($usuario as $respuestaUsuario) {
+                if (isset($respuestaUsuario['computadora']) && isset($respuestaUsuario['estado'])) {
+                    $comp = (int)$respuestaUsuario['computadora'];
+                    $estado = (string)$respuestaUsuario['estado'];
+                    $mapaUsuario[$comp] = $estado;
+                }
+            }
+            
             // Verificar que cada computadora tenga el estado correcto
             foreach ($correcta as $respuestaCorrecta) {
-                $encontrado = false;
-                foreach ($usuario as $respuestaUsuario) {
-                    if (isset($respuestaUsuario['computadora']) && isset($respuestaUsuario['estado']) &&
-                        isset($respuestaCorrecta['computadora']) && isset($respuestaCorrecta['estado'])) {
-                        
-                        if ((int)$respuestaUsuario['computadora'] === (int)$respuestaCorrecta['computadora'] &&
-                            (string)$respuestaUsuario['estado'] === (string)$respuestaCorrecta['estado']) {
-                            $encontrado = true;
-                            break;
-                        }
-                    }
+                if (!isset($respuestaCorrecta['computadora']) || !isset($respuestaCorrecta['estado'])) {
+                    return false;
                 }
-                if (!$encontrado) {
+                $comp = (int)$respuestaCorrecta['computadora'];
+                $estadoEsperado = (string)$respuestaCorrecta['estado'];
+                
+                if (!isset($mapaUsuario[$comp]) || $mapaUsuario[$comp] !== $estadoEsperado) {
                     return false;
                 }
             }
@@ -245,23 +255,26 @@ class PreguntaController extends Controller
             return false;
         }
         
-        $usuarioSet = collect($usuario)
-            ->map(function($r) {
-                return "{$r['fila']}-{$r['columna']}";
-            })
-            ->sort()
-            ->values()
-            ->toArray();
-            
-        $correctaSet = collect($correcta)
-            ->map(function($r) {
-                return "{$r['fila']}-{$r['columna']}";
-            })
-            ->sort()
-            ->values()
-            ->toArray();
+        // Optimización: usar un conjunto hash en lugar de ordenar arrays
+        $usuarioSet = [];
+        foreach ($usuario as $r) {
+            if (isset($r['fila']) && isset($r['columna'])) {
+                $usuarioSet["{$r['fila']}-{$r['columna']}"] = true;
+            }
+        }
         
-        return $usuarioSet === $correctaSet;
+        // Verificar que todas las celdas correctas estén presentes
+        foreach ($correcta as $r) {
+            if (!isset($r['fila']) || !isset($r['columna'])) {
+                return false;
+            }
+            $key = "{$r['fila']}-{$r['columna']}";
+            if (!isset($usuarioSet[$key])) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     private function validarEmparejar($usuario, $correcta)
@@ -274,16 +287,23 @@ class PreguntaController extends Controller
             return false;
         }
         
-        foreach ($correcta as $emparejamiento) {
-            $encontrado = false;
-            foreach ($usuario as $respuesta) {
-                if ($respuesta['objeto'] === $emparejamiento['objeto'] && 
-                    $respuesta['destino'] === $emparejamiento['destino']) {
-                    $encontrado = true;
-                    break;
-                }
+        // Optimización: usar un mapa hash objeto->destino
+        $mapaUsuario = [];
+        foreach ($usuario as $respuesta) {
+            if (isset($respuesta['objeto']) && isset($respuesta['destino'])) {
+                $mapaUsuario[$respuesta['objeto']] = $respuesta['destino'];
             }
-            if (!$encontrado) {
+        }
+        
+        // Verificar cada emparejamiento correcto
+        foreach ($correcta as $emparejamiento) {
+            if (!isset($emparejamiento['objeto']) || !isset($emparejamiento['destino'])) {
+                return false;
+            }
+            $objeto = $emparejamiento['objeto'];
+            $destinoEsperado = $emparejamiento['destino'];
+            
+            if (!isset($mapaUsuario[$objeto]) || $mapaUsuario[$objeto] !== $destinoEsperado) {
                 return false;
             }
         }
@@ -324,20 +344,27 @@ class PreguntaController extends Controller
     
     private function compararRellenar($usuario, $correcta)
     {
+        // Optimización: usar un mapa hash area->color
+        $mapaUsuario = [];
+        foreach ($usuario as $respuesta) {
+            if (isset($respuesta['area']) && isset($respuesta['color'])) {
+                $mapaUsuario[$respuesta['area']] = $respuesta['color'];
+            }
+        }
+        
         // Verificar que todas las áreas tengan el color correcto
         foreach ($correcta as $colorCorrecto) {
-            $encontrado = false;
-            foreach ($usuario as $respuesta) {
-                if ($respuesta['area'] === $colorCorrecto['area'] && 
-                    $respuesta['color'] === $colorCorrecto['color']) {
-                    $encontrado = true;
-                    break;
-                }
+            if (!isset($colorCorrecto['area']) || !isset($colorCorrecto['color'])) {
+                return false;
             }
-            if (!$encontrado) {
+            $area = $colorCorrecto['area'];
+            $colorEsperado = $colorCorrecto['color'];
+            
+            if (!isset($mapaUsuario[$area]) || $mapaUsuario[$area] !== $colorEsperado) {
                 return false;
             }
         }
+        
         return true;
     }
     
@@ -494,27 +521,25 @@ class PreguntaController extends Controller
             return false;
         }
         
+        // Optimización: usar un mapa hash abeja->celda
+        $mapaUsuario = [];
+        foreach ($usuario as $colocacionUsuario) {
+            if (isset($colocacionUsuario['abeja']) && isset($colocacionUsuario['celda'])) {
+                $abeja = (string)$colocacionUsuario['abeja'];
+                $celda = (int)$colocacionUsuario['celda'];
+                $mapaUsuario[$abeja] = $celda;
+            }
+        }
+        
         // Verificar que cada colocación sea correcta
         foreach ($correcta as $colocacionCorrecta) {
-            $encontrado = false;
-            foreach ($usuario as $colocacionUsuario) {
-                // Comparar tanto abeja como celda
-                if (isset($colocacionUsuario['abeja']) && isset($colocacionUsuario['celda']) &&
-                    isset($colocacionCorrecta['abeja']) && isset($colocacionCorrecta['celda'])) {
-                    
-                    // Convertir a string para comparación flexible
-                    $abejaUsuario = (string)$colocacionUsuario['abeja'];
-                    $celdaUsuario = (int)$colocacionUsuario['celda'];
-                    $abejaCorrecta = (string)$colocacionCorrecta['abeja'];
-                    $celdaCorrecta = (int)$colocacionCorrecta['celda'];
-                    
-                    if ($abejaUsuario === $abejaCorrecta && $celdaUsuario === $celdaCorrecta) {
-                        $encontrado = true;
-                        break;
-                    }
-                }
+            if (!isset($colocacionCorrecta['abeja']) || !isset($colocacionCorrecta['celda'])) {
+                return false;
             }
-            if (!$encontrado) {
+            $abejaCorrecta = (string)$colocacionCorrecta['abeja'];
+            $celdaCorrecta = (int)$colocacionCorrecta['celda'];
+            
+            if (!isset($mapaUsuario[$abejaCorrecta]) || $mapaUsuario[$abejaCorrecta] !== $celdaCorrecta) {
                 return false;
             }
         }
@@ -532,28 +557,29 @@ class PreguntaController extends Controller
             return false;
         }
         
+        // Optimización: usar un mapa hash "fila-columna"->pieza
+        $mapaUsuario = [];
+        foreach ($usuario as $colocacionUsuario) {
+            if (isset($colocacionUsuario['fila']) && isset($colocacionUsuario['columna']) && isset($colocacionUsuario['pieza'])) {
+                $fila = (int)$colocacionUsuario['fila'];
+                $columna = (int)$colocacionUsuario['columna'];
+                $pieza = (string)$colocacionUsuario['pieza'];
+                $key = "{$fila}-{$columna}";
+                $mapaUsuario[$key] = $pieza;
+            }
+        }
+        
         // Verificar que cada colocación sea correcta
         foreach ($correcta as $colocacionCorrecta) {
-            $encontrado = false;
-            foreach ($usuario as $colocacionUsuario) {
-                // Comparar fila, columna y pieza
-                if (isset($colocacionUsuario['fila']) && isset($colocacionUsuario['columna']) && isset($colocacionUsuario['pieza']) &&
-                    isset($colocacionCorrecta['fila']) && isset($colocacionCorrecta['columna']) && isset($colocacionCorrecta['pieza'])) {
-                    
-                    $filaUsuario = (int)$colocacionUsuario['fila'];
-                    $columnaUsuario = (int)$colocacionUsuario['columna'];
-                    $piezaUsuario = (string)$colocacionUsuario['pieza'];
-                    $filaCorrecta = (int)$colocacionCorrecta['fila'];
-                    $columnaCorrecta = (int)$colocacionCorrecta['columna'];
-                    $piezaCorrecta = (string)$colocacionCorrecta['pieza'];
-                    
-                    if ($filaUsuario === $filaCorrecta && $columnaUsuario === $columnaCorrecta && $piezaUsuario === $piezaCorrecta) {
-                        $encontrado = true;
-                        break;
-                    }
-                }
+            if (!isset($colocacionCorrecta['fila']) || !isset($colocacionCorrecta['columna']) || !isset($colocacionCorrecta['pieza'])) {
+                return false;
             }
-            if (!$encontrado) {
+            $filaCorrecta = (int)$colocacionCorrecta['fila'];
+            $columnaCorrecta = (int)$colocacionCorrecta['columna'];
+            $piezaCorrecta = (string)$colocacionCorrecta['pieza'];
+            $key = "{$filaCorrecta}-{$columnaCorrecta}";
+            
+            if (!isset($mapaUsuario[$key]) || $mapaUsuario[$key] !== $piezaCorrecta) {
                 return false;
             }
         }
@@ -571,35 +597,36 @@ class PreguntaController extends Controller
             return false;
         }
         
-        // Verificar que cada colocación sea correcta
-        foreach ($correcta as $colocacionCorrecta) {
-            $encontrado = false;
-            foreach ($usuario as $colocacionUsuario) {
-                // Comparar posición y color
-                if (isset($colocacionUsuario['posicion']) && isset($colocacionUsuario['color']) &&
-                    isset($colocacionCorrecta['posicion']) && isset($colocacionCorrecta['color'])) {
-                    
-                    $posUsuario = $colocacionUsuario['posicion'];
-                    $posCorrecta = $colocacionCorrecta['posicion'];
-                    
-                    if (is_array($posUsuario) && is_array($posCorrecta) &&
-                        count($posUsuario) === 2 && count($posCorrecta) === 2) {
-                        
-                        $filaUsuario = (int)$posUsuario[0];
-                        $columnaUsuario = (int)$posUsuario[1];
-                        $colorUsuario = (string)$colocacionUsuario['color'];
-                        $filaCorrecta = (int)$posCorrecta[0];
-                        $columnaCorrecta = (int)$posCorrecta[1];
-                        $colorCorrecta = (string)$colocacionCorrecta['color'];
-                        
-                        if ($filaUsuario === $filaCorrecta && $columnaUsuario === $columnaCorrecta && $colorUsuario === $colorCorrecta) {
-                            $encontrado = true;
-                            break;
-                        }
-                    }
+        // Optimización: usar un mapa hash "fila-columna"->color
+        $mapaUsuario = [];
+        foreach ($usuario as $colocacionUsuario) {
+            if (isset($colocacionUsuario['posicion']) && isset($colocacionUsuario['color'])) {
+                $posUsuario = $colocacionUsuario['posicion'];
+                if (is_array($posUsuario) && count($posUsuario) === 2) {
+                    $fila = (int)$posUsuario[0];
+                    $columna = (int)$posUsuario[1];
+                    $color = (string)$colocacionUsuario['color'];
+                    $key = "{$fila}-{$columna}";
+                    $mapaUsuario[$key] = $color;
                 }
             }
-            if (!$encontrado) {
+        }
+        
+        // Verificar que cada colocación sea correcta
+        foreach ($correcta as $colocacionCorrecta) {
+            if (!isset($colocacionCorrecta['posicion']) || !isset($colocacionCorrecta['color'])) {
+                return false;
+            }
+            $posCorrecta = $colocacionCorrecta['posicion'];
+            if (!is_array($posCorrecta) || count($posCorrecta) !== 2) {
+                return false;
+            }
+            $filaCorrecta = (int)$posCorrecta[0];
+            $columnaCorrecta = (int)$posCorrecta[1];
+            $colorCorrecta = (string)$colocacionCorrecta['color'];
+            $key = "{$filaCorrecta}-{$columnaCorrecta}";
+            
+            if (!isset($mapaUsuario[$key]) || $mapaUsuario[$key] !== $colorCorrecta) {
                 return false;
             }
         }
