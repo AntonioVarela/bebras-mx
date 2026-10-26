@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Pregunta extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'numero', 'titulo', 'descripcion', 'imagen_descripcion',
         'pregunta', 'imagen_pregunta', 'imagen_respuesta',

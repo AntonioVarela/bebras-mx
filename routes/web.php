@@ -46,5 +46,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/alumno/{id}/progreso', [DashboardController::class, 'verProgreso'])->name('progreso')->where('id', '[0-9]+');
         Route::post('/preguntas/{id}/toggle', [DashboardController::class, 'togglePregunta'])->name('preguntas.toggle')->where('id', '[0-9]+');
+        Route::post('/alumno/{userId}/pregunta/{preguntaId}/otorgar-oportunidad', [DashboardController::class, 'otorgarOportunidad'])->name('otorgar-oportunidad')->where(['userId' => '[0-9]+', 'preguntaId' => '[0-9]+']);
     });
 });
