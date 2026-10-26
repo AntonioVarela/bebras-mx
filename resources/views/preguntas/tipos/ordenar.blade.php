@@ -1,4 +1,24 @@
 
+<style>
+    #elementos-fuente,
+    #area-ordenamiento {
+        touch-action: pan-y !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .elemento-draggable {
+        touch-action: none;
+    }
+    
+    .elemento-draggable.sortable-ghost {
+        opacity: 0.4;
+    }
+    
+    .elemento-draggable.sortable-drag {
+        opacity: 0.8;
+    }
+</style>
+
 <div class="grid md:grid-cols-2 gap-3">
     @php
         $config = $pregunta->configuracion;
@@ -12,15 +32,15 @@
     
     {{-- Elementos desordenados --}}
     <div>
-        <h4 class="text-sm font-semibold text-gray-700 mb-2">
+        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Disponibles: 
             <span class="text-xs font-normal text-gray-500" id="contador-fuente">
                 ({{ count($elementosMezclados) }})
             </span>
         </h4>
-        <div id="elementos-fuente" class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2 min-h-[150px] max-h-[300px] overflow-y-auto">
+        <div id="elementos-fuente" class="bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-2 min-h-[150px] max-h-[300px] overflow-y-auto">
             @foreach($elementosMezclados as $elemento)
-                <div class="elemento-draggable bg-white border-2 border-gray-300 rounded-lg p-2 mb-1 cursor-move hover:shadow-lg transition-shadow touch-manipulation"
+                <div class="elemento-draggable bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg p-2 mb-1 cursor-move hover:shadow-lg transition-shadow touch-manipulation"
                      data-id="{{ $elemento['id'] }}">
                     @if(isset($elemento['imagen']))
                         <img src="{{ asset('storage/' . $elemento['imagen']) }}" alt="{{ $elemento['id'] }}" class="full w-auto h-12 object-contain">
@@ -34,11 +54,11 @@
 
     {{-- Área de ordenamiento --}}
     <div>
-        <h4 class="text-sm font-semibold text-gray-700 mb-2">
+        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Orden correcto: 
             <span class="text-xs font-normal text-gray-500" id="contador-destino">(0)</span>
         </h4>
-        <div id="area-ordenamiento" class="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-2 min-h-[150px] max-h-[300px] overflow-y-auto">
+        <div id="area-ordenamiento" class="bg-blue-50 dark:bg-blue-900/20 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-lg p-2 min-h-[150px] max-h-[300px] overflow-y-auto">
             <p class="text-xs text-gray-400 text-center py-4" id="placeholder-orden">Arrastra los elementos aquí</p>
         </div>
     </div>
