@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pregunta;
 use App\Models\ProgresoUsuario;
+use App\Models\OportunidadAdicional;
 use Illuminate\Http\Request;
 
 class PreguntaController extends Controller
@@ -40,6 +41,7 @@ class PreguntaController extends Controller
         // Verificar si ya respondió
         $progresoUsuario = null;
         $yaRespondio = false;
+        $tieneOportunidad = false;
 
         if (auth()->check()) {
             $progresoUsuario = ProgresoUsuario::where('user_id', auth()->id())
@@ -47,9 +49,17 @@ class PreguntaController extends Controller
                 ->first();
             
             $yaRespondio = $progresoUsuario !== null;
+            
+            // Verificar si tiene oportunidad adicional no consumida
+            if ($yaRespondio && auth()->user()->isAlumno()) {
+                $tieneOportunidad = OportunidadAdicional::where('user_id', auth()->id())
+                    ->where('pregunta_id', $id)
+                    ->noConsumida()
+                    ->exists();
+            }
         }
         
-        return view('preguntas.show', compact('pregunta', 'progresoUsuario', 'yaRespondio'));
+        return view('preguntas.show', compact('pregunta', 'progresoUsuario', 'yaRespondio', 'tieneOportunidad'));
     }
 
     public function verificar(Request $request, $id)
@@ -70,10 +80,26 @@ class PreguntaController extends Controller
             ->first();
         
         if ($progresoExistente && auth()->user()->isAlumno()) {
-            return response()->json([
-                'error' => true,
-                'mensaje' => 'Ya respondiste esta pregunta anteriormente.'
-            ], 403);
+            // Verificar si tiene una oportunidad adicional no consumida
+            $oportunidad = OportunidadAdicional::where('user_id', auth()->id())
+                ->where('pregunta_id', $id)
+                ->noConsumida()
+                ->first();
+                
+            if (!$oportunidad) {
+                return response()->json([
+                    'error' => true,
+                    'mensaje' => 'Ya respondiste esta pregunta anteriormente.'
+                ], 403);
+            }
+            
+            // Consumir la oportunidad
+            $oportunidad->consumida = true;
+            $oportunidad->consumida_at = now();
+            $oportunidad->save();
+            
+            // Eliminar el progreso anterior para permitir nuevo intento
+            $progresoExistente->delete();
         }
 
         $request->validate([

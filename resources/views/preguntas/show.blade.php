@@ -195,17 +195,29 @@
         @if($yaRespondio)
         document.addEventListener('DOMContentLoaded', function() {
             const btnVerificar = document.getElementById('btnVerificar');
-            btnVerificar.disabled = true;
-            btnVerificar.classList.add('opacity-50', 'cursor-not-allowed');
-            btnVerificar.innerHTML = '<span>Ya Respondiste Esta Pregunta</span>';
-            deshabilitarInteraccion();
-            mostrarResultadoPrevio({
-                correcta: {{ $progresoUsuario->es_correcta ? 'true' : 'false' }},
-                explicacion: @json($pregunta->explicacion),
-                respuesta_correcta_visual: '',
-                imagen_respuesta: @json($pregunta->imagen_respuesta)
-            });
-            mostrarNavegacion();
+            @if($tieneOportunidad ?? false)
+                btnVerificar.disabled = false;
+                btnVerificar.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnVerificar.classList.add('bg-gradient-to-r', 'from-pink-600', 'to-purple-600');
+                btnVerificar.innerHTML = '<span>🎁 Tienes una Oportunidad Adicional - Responder de Nuevo</span>';
+                
+                const resultado = document.getElementById('resultado');
+                resultado.classList.remove('hidden');
+                resultado.className = 'mt-4 p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500 dark:border-blue-600';
+                resultado.innerHTML = '<div class="flex items-start gap-2"><svg class="w-8 h-8 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div class="flex-1"><h4 class="font-bold text-blue-800 dark:text-blue-200 text-lg mb-2">¡Tienes una Oportunidad Adicional!</h4><p class="text-sm text-blue-700 dark:text-blue-300 leading-snug">Un administrador te ha otorgado otra oportunidad para responder esta pregunta. Puedes intentarlo de nuevo y tu respuesta anterior será reemplazada.</p></div></div>';
+            @else
+                btnVerificar.disabled = true;
+                btnVerificar.classList.add('opacity-50', 'cursor-not-allowed');
+                btnVerificar.innerHTML = '<span>Ya Respondiste Esta Pregunta</span>';
+                deshabilitarInteraccion();
+                mostrarResultadoPrevio({
+                    correcta: {{ $progresoUsuario->es_correcta ? 'true' : 'false' }},
+                    explicacion: @json($pregunta->explicacion),
+                    respuesta_correcta_visual: '',
+                    imagen_respuesta: @json($pregunta->imagen_respuesta)
+                });
+                mostrarNavegacion();
+            @endif
         });
         function mostrarResultadoPrevio(data) {
             const resultado = document.getElementById('resultado');

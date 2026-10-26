@@ -39,6 +39,11 @@ class User extends Authenticatable
         return $this->hasMany(ProgresoUsuario::class);
     }
 
+    public function oportunidadesAdicionales()
+    {
+        return $this->hasMany(OportunidadAdicional::class);
+    }
+
     // Métodos helper
     public function isAdmin()
     {
